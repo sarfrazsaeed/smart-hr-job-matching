@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Matching</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Custom Styling -->
+    <style>
+        body {
+            background-color: #9e90bc;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Navigation button styling */
+        .nav-btn {
+            font-size: 18px;
+            padding: 12px 24px;
+            margin: 6px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Job – Candidate Matching</h2>
+
+    <!-- Navigation Buttons -->
+    <div class="text-center mb-4">
+        <a href="index.html" class="btn btn-primary nav-btn">Candidate</a>
+        <a href="hr.html" class="btn btn-success nav-btn">HR</a>
+        <a href="match.html" class="btn btn-dark nav-btn">Match</a>
+        <a href="about.html" class="btn btn-info nav-btn">About</a>
+        <a href="help.html" class="btn btn-secondary nav-btn">Help</a>
+    </div>
+
+    <!-- Match Button -->
+    <div class="text-center">
+        <button class="btn btn-success btn-lg mb-3" onclick="matchCandidates()">
+            Match Candidates
+        </button>
+    </div>
+
+    <!-- Result Area -->
+    <div id="result"></div>
+</div>
+
+<!-- JS -->
+<script src="script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
