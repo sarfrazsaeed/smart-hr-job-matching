@@ -1,115 +1,175 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HR Job Posting</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHire | HR Portal</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- Custom Styling -->
-    <style>
-        body {
-            background-color: #b2a0c2;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Navigation button styling */
-        .nav-btn {
-            font-size: 18px;
-            padding: 12px 24px;
-            margin: 6px;
-            font-weight: bold;
-        }
-    </style>
+   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+   <link href="style.css" rel="stylesheet">
 </head>
-
 <body>
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">HR - Job Posting Portal</h2>
-
-    <!-- Navigation Buttons -->
-    <div class="text-center mb-4">
-        <a href="index.html" class="btn btn-primary nav-btn">Candidate</a>
-        <a href="hr.html" class="btn btn-success nav-btn">HR</a>
-        <a href="match.html" class="btn btn-dark nav-btn">Match</a>
-        <a href="about.html" class="btn btn-info nav-btn">About</a>
-        <a href="help.html" class="btn btn-secondary nav-btn">Help</a>
-    </div>
-
-    <!-- Job Posting Form -->
-    <div class="card p-4 shadow">
-        <form id="jobForm">
-
-            <div class="mb-3">
-                <label class="form-label">Job Title</label>
-                <input type="text" id="jobTitle" class="form-control" placeholder="e.g. Web Developer" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Required Skills (comma separated)</label>
-                <input type="text" id="jobSkills" class="form-control" placeholder="HTML, CSS, JavaScript" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Experience Required (Years)</label>
-                <input type="number" id="jobExperience" class="form-control" min="0" placeholder="e.g. 1" required>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Job Type</label>
-                <select id="jobType" class="form-select" required>
-                    <option value="">Select</option>
-                    <option>Full Time</option>
-                    <option>Part Time</option>
-                    <option>Internship</option>
-                    <option>Remote</option>
-                </select>
-            </div>
-
-            <button class="btn btn-success btn-lg" type="submit">
-                Post Job
-            </button>
-        </form>
-    </div>
-
-    <!-- Display Jobs -->
-    <div class="mt-4">
-        <h3>All Posted Jobs</h3>
-        <table class="table table-bordered">
-            <thead class="table-dark">
-                <tr>
-                    <th>Job Title</th>
-                    <th>Skills</th>
-                    <th>Experience</th>
-                    <th>Job Type</th>
-                </tr>
-            </thead>
-            <tbody id="jobTable"></tbody>
-        </table>
-    </div>
-
-    <div id="jobMessage"></div>
-
-    <!-- View Candidates -->
-    <button class="btn btn-primary btn-lg mt-3" onclick="showCandidates()">
-        View All Registered Candidates
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold fs-4" href="index.html">
+      <i class="bi bi-people-fill text-primary me-2"></i>SmartHire
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
     </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <h4><li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link active" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li></h4>
+      </ul>
+    </div>
+  </div>
+</nav>
 
-    <!-- Candidates Area -->
-    <div id="candidateList" class="mt-3"></div>
+<div class="hero-section text-center text-white py-5">
+  <div class="container">
+    <h1 class="display-5 fw-bold"><i class="bi bi-briefcase-fill me-2"></i>HR Job Portal</h1>
+    <p class="lead opacity-75">Post job openings and manage your candidate pipeline</p>
 
-    <button class="btn btn-danger btn-lg mt-3" onclick="clearAllCandidates()">
-        Clear All Candidates
-    </button>
-
+  </div>
 </div>
 
-<!-- JS -->
-<script src="script.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Toast -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
+  <div id="toast" class="toast align-items-center text-white border-0" role="alert">
+    <div class="d-flex">
+      <div class="toast-body fw-semibold" id="toastMsg">Success!</div>
+      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    </div>
+  </div>
+</div>
 
+
+<div class="container py-5">
+  <div class="row g-4">
+
+
+    <!-- Post Job Form -->
+    <div class="col-lg-5">
+      <div class="card shadow border-0 h-100">
+         <div class="card-header bg-success text-white py-3">
+          <h5 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Post a New Job</h5>
+        </div>
+        <div class="card-body p-4">
+          <form id="jobForm" novalidate>
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Job Title</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-briefcase"></i></span>
+                <input type="text" id="jobTitle" class="form-control" placeholder="e.g. Web Developer" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Required Skills <span class="text-muted fw-normal">(comma separated)</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-tools"></i></span>
+                <input type="text" id="jobSkills" class="form-control" placeholder="HTML, CSS, JavaScript" required>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Experience Required <span class="text-muted fw-normal">(years)</span></label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-clock-history"></i></span>
+                <input type="number" id="jobExperience" class="form-control" min="0" placeholder="e.g. 1" required>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Job Type</label>
+              <div class="input-group">
+                <span class="input-group-text"><i class="bi bi-tag"></i></span>
+                <select id="jobType" class="form-select" required>
+                  <option value="">Select job type</option>
+                  <option>Full Time</option>
+                  <option>Part Time</option>
+                  <option>Internship</option>
+                  <option>Remote</option>
+                  <option>Contract</option>
+                </select>
+              </div>
+            </div>
+
+            <button class="btn btn-success btn-lg w-100" type="submit">
+              <i class="bi bi-send me-2"></i>Post Job</button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Jobs + Candidates -->
+    <div class="col-lg-7">
+
+      <!-- Posted Jobs -->
+      <div class="card shadow border-0 mb-4">
+        <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+            <h4 class="mb-0"><i class="bi bi-list-ul me-2"></i>Posted Jobs</h4>
+          <button class="btn btn-sm btn-outline-danger" onclick="clearAllJobs()">
+            <h4><i class="bi bi-trash me-1"></i>Clear All</h4>
+          </button>
+        </div>
+
+        <div class="card-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Job Title</th>
+                  <th>Skills</th>
+                  <th>Exp.</th>
+                  <th>Type</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+
+              <tbody id="jobTable">
+                <tr><td colspan="5" class="text-center text-muted py-4">No jobs posted yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+
+      <!-- Registered Candidates -->
+      <div class="card shadow border-0">
+        <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0"><i class="bi bi-people me-2"></i>Registered Candidates</h5>
+          <div class="d-flex gap-2">
+            <button class="btn btn-sm btn-outline-light" onclick="showCandidates()">
+              <h4><i class="bi bi-eye me-1"></i>View</h4>
+            </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="clearAllCandidates()">
+              <h4><i class="bi bi-trash me-1"></i>Clear</h4>
+            </button>
+          </div>
+        </div>
+        <div class="card-body p-0">
+          <div id="candidateList" class="p-3 text-muted text-center">Click "View" to load candidates</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-auto">
+  <small class="opacity-50">© 2025 SmartHire — HTML · CSS · Bootstrap · JavaScript</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
