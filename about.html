@@ -1,78 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Project</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        body {
-            background-color: #bdb1ce;
-            font-family: Arial, sans-serif;
-        }
-
-        /* Navigation buttons */
-        .nav-btn {
-            font-size: 18px;
-            padding: 12px 24px;
-            margin: 6px;
-            font-weight: bold;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHire | About</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
 </head>
-
 <body>
 
-<div class="container mt-5">
-    <h2 class="text-center mb-4">About This Project</h2>
-
-    <!-- Navigation -->
-    <div class="text-center mb-4">
-        <a href="index.html" class="btn btn-primary nav-btn">Candidate</a>
-        <a href="hr.html" class="btn btn-success nav-btn">HR</a>
-        <a href="match.html" class="btn btn-dark nav-btn">Match</a>
-        <a href="about.html" class="btn btn-info nav-btn">About</a>
-        <a href="help.html" class="btn btn-secondary nav-btn">Help</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold fs-4" href="index.html">
+      <i class="bi bi-people-fill text-primary me-2"></i>SmartHire
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <h4><li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li></h4>
+        <h4><li class="nav-item"><a class="nav-link active" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li></h4>
+      </ul>
     </div>
+  </div>
+</nav>
 
-    <!-- About Card -->
-    <div class="card p-4 shadow">
-        <p>
-            The <strong>Smart HR & Job Matching System</strong> is a web-based application
-            developed using <strong>HTML, CSS, Bootstrap, and JavaScript</strong>.
-        </p>
-
-        <p>
-            This system allows <strong>candidates</strong> to register their personal
-            details, skills, education, and experience.
-        </p>
-
-        <p>
-            <strong>HR managers</strong> can post job openings with required skills,
-            experience, and job type.
-        </p>
-
-        <p>
-            The <strong>matching module</strong> compares candidate profiles with
-            job requirements and displays suitable matches.
-        </p>
-
-        <p>
-            All data is stored using browser <strong>localStorage</strong>,
-            making the system fast, simple, and suitable for academic projects.
-        </p>
-    </div>
-
-    <p class="text-center mt-4 text-muted">
-        © 2025 Smart HR Job Matching System
-    </p>
+<div class="hero-section text-center text-white py-5">
+  <div class="container">
+    <h1 class="display-5 fw-bold"><i class="bi bi-info-circle-fill me-2"></i>About SmartHire</h1>
+    <p class="lead opacity-75">A smart HR & job matching system built with modern web technologies</p>
+  </div>
 </div>
 
-<!-- Bootstrap JS -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
 
+      <!-- Feature cards -->
+      <div class="row g-4 mb-5">
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100 text-center p-3">
+            <div class="card-body">
+              <div class="stat-icon bg-primary-subtle text-primary mx-auto mb-3">
+                <i class="bi bi-person-plus-fill fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Candidate Registration</h5>
+              <p class="text-muted">Register with name, email, skills, education, and experience. Duplicate email prevention built in.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100 text-center p-3">
+            <div class="card-body">
+              <div class="stat-icon bg-success-subtle text-success mx-auto mb-3">
+                <i class="bi bi-briefcase-fill fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Job Posting Portal</h5>
+              <p class="text-muted">HR managers can post jobs with required skills, experience level, and job type.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100 text-center p-3">
+            <div class="card-body">
+              <div class="stat-icon bg-warning-subtle text-warning mx-auto mb-3">
+                <i class="bi bi-diagram-3-fill fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Smart Skill Matching</h5>
+              <p class="text-muted">Match candidates to any job with a percentage match score showing how well each candidate fits.</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="card border-0 shadow-sm h-100 text-center p-3">
+            <div class="card-body">
+              <div class="stat-icon bg-info-subtle text-info mx-auto mb-3">
+                <i class="bi bi-bar-chart-fill fs-3"></i>
+              </div>
+              <h5 class="fw-bold">Live Dashboard</h5>
+              <p class="text-muted">View total candidates, jobs, unique skills, and average experience. See top skills distribution.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tech stack -->
+      <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-dark text-white py-3">
+          <h5 class="mb-0"><i class="bi bi-code-slash me-2"></i>Technologies Used</h5>
+        </div>
+        <div class="card-body p-4">
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge bg-danger fs-6 px-3 py-2"><i class="bi bi-filetype-html me-1"></i>HTML5</span>
+            <span class="badge bg-primary fs-6 px-3 py-2"><i class="bi bi-filetype-css me-1"></i>CSS3</span>
+            <span class="badge bg-warning text-dark fs-6 px-3 py-2"><i class="bi bi-filetype-js me-1"></i>JavaScript</span>
+            <span class="badge bg-purple fs-6 px-3 py-2" style="background:#7952b3"><i class="bi bi-bootstrap me-1"></i>Bootstrap 5</span>
+            <span class="badge bg-secondary fs-6 px-3 py-2"><i class="bi bi-hdd me-1"></i>localStorage</span>
+            <span class="badge bg-info text-dark fs-6 px-3 py-2"><i class="bi bi-icons me-1"></i>Bootstrap Icons</span>
+          </div>
+        </div>
+      </div>
+
+      <p class="text-center text-muted">© 2025 SmartHire — Built with HTML · CSS · Bootstrap · JavaScript</p>
+    </div>
+  </div>
+</div>
+
+<footer class="bg-dark text-white text-center py-3 mt-auto">
+  <small class="opacity-50">© 2025 SmartHire — HTML · CSS · Bootstrap · JavaScript</small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
