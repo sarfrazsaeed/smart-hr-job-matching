@@ -55,3 +55,7 @@ Web Developer — HTML · CSS · Bootstrap · JavaScript
 
 ### Dashboard
 ![Dashboard](screenshots/dashboard.png)
+
+---
+© 2026 Sarfraz Saeed. All Rights Reserved.
+Unauthorized copying or use of this project is strictly prohibited.
