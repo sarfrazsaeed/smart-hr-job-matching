@@ -41,3 +41,17 @@ How to Run
 **Sarfraz Saeed**
 GitHub: [@sarfrazsaeed](https://github.com/sarfrazsaeed)
 Web Developer — HTML · CSS · Bootstrap · JavaScript
+
+## Screenshots
+
+### Candidate Registration
+![Candidate Registration](screenshots/candidate.png)
+
+### HR Portal
+![HR Portal](screenshots/hr.png)
+
+### Match Results
+![Match Results](screenshots/match.png)
+
+### Dashboard
+![Dashboard](screenshots/dashboard.png)

@@ -8,6 +8,8 @@
 
    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
    <link href="style.css" rel="stylesheet">
+   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 </head>
 <body>
 
@@ -21,11 +23,18 @@
     </button>
     <div class="collapse navbar-collapse" id="navMenu">
       <ul class="navbar-nav ms-auto">
-        <h4><li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li></h4>
-        <h4><li class="nav-item"><a class="nav-link active" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li></h4>
-        <h4><li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li></h4>
-        <h4><li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li></h4>
-        <h4><li class="nav-item"><a class="nav-link" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li></h4>
+        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li>
+<li class="nav-item"><a class="nav-link active" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li>
+<li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li>
+<li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li>
+<li class="nav-item"><a class="nav-link" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li>
+
+<li class="nav-item ms-2 d-flex align-items-center">
+  <div class="form-check form-switch mb-0">
+    <input class="form-check-input" type="checkbox" id="darkToggle" role="switch">
+    <label class="form-check-label text-white" for="darkToggle">Dark</label>
+  </div>
+</li>
       </ul>
     </div>
   </div>
@@ -49,7 +58,7 @@
   </div>
 </div>
 
-
+<div id="job-stats-root" class="container mt-3"></div>
 <div class="container py-5">
   <div class="row g-4">
 
@@ -116,9 +125,9 @@
       <div class="card shadow border-0 mb-4">
         <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
             <h4 class="mb-0"><i class="bi bi-list-ul me-2"></i>Posted Jobs</h4>
-          <button class="btn btn-sm btn-outline-danger" onclick="clearAllJobs()">
-            <h4><i class="bi bi-trash me-1"></i>Clear All</h4>
-          </button>
+            <button class="btn btn-sm btn-outline-danger" onclick="clearAllJobs()">
+              <i class="bi bi-trash me-1"></i>Clear All
+            </button>
         </div>
 
         <div class="card-body p-0">
@@ -148,16 +157,23 @@
         <div class="card-header bg-primary text-white py-3 d-flex justify-content-between align-items-center">
           <h5 class="mb-0"><i class="bi bi-people me-2"></i>Registered Candidates</h5>
           <div class="d-flex gap-2">
-            <button class="btn btn-sm btn-outline-light" onclick="showCandidates()">
-              <h4><i class="bi bi-eye me-1"></i>View</h4>
+            <button class="btn btn-sm btn-outline-success" onclick="exportCSV()">
+              <i class="bi bi-download me-1"></i>CSV
+            </button>
+            <button class="btn btn-sm btn-outline-light" onclick="showCandidatesPaginated()">
+              <i class="bi bi-eye me-1"></i>View
             </button>
             <button class="btn btn-sm btn-outline-danger" onclick="clearAllCandidates()">
-              <h4><i class="bi bi-trash me-1"></i>Clear</h4>
+              <i class="bi bi-trash me-1"></i>Clear
             </button>
           </div>
         </div>
-        <div class="card-body p-0">
-          <div id="candidateList" class="p-3 text-muted text-center">Click "View" to load candidates</div>
+        <div class="card-body">
+          <div class="input-group mb-3">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" id="candidateSearch" class="form-control" placeholder="Search by name or email...">
+          </div>
+          <div id="candidateList" class="text-muted text-center">Click "View" to load candidates</div>
         </div>
       </div>
 
@@ -166,10 +182,11 @@
 </div>
 
 <footer class="bg-dark text-white text-center py-3 mt-auto">
-  <small class="opacity-50">© 2025 SmartHire — HTML · CSS · Bootstrap · JavaScript</small>
+  <small class="opacity-50">© 2026 SmartHire — HTML · CSS · JavaScript · React · Bootstrap · Chart.js</small>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="script.js"></script>
+<script src="JobStats.js"></script>
 </body>
 </html>

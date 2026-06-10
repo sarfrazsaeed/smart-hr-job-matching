@@ -1,5 +1,7 @@
 //  SmartHire — script.js  
 
+let currentPage = 1;
+const PAGE_SIZE = 10;
 
 // toast helper
 function showToast(msg, type = 'success') {
@@ -34,6 +36,7 @@ const candidateForm = document.getElementById('candidateForm');
 if (candidateForm) {
 
   // show the live count
+  removeDuplicateCandidates();
   updateCandidateCount();
 
   candidateForm.addEventListener('submit', function (e) {
@@ -146,11 +149,19 @@ document.addEventListener('DOMContentLoaded', function () {
     populateJobSelector();
   }
 
+  // auto-load candidates on HR page
+  if (document.getElementById('candidateList')) {
+    showCandidatesPaginated();
+  }
+
   // dashboard
   if (document.getElementById('statCandidates')) {
     loadDashboard();
+    loadCharts();
   }
 });
+
+
 
 // display jobs table (hr.html) 
 function displayJobs() {
@@ -208,50 +219,7 @@ function clearAllJobs() {
 
 // show all candidates table (hr.html) 
 
-function showCandidates() {
-   const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
 
-  const div = document.getElementById('candidateList');
-  if (!div) return;
-
-
-  if (candidates.length === 0) {
-     div.innerHTML = `<div class="p-3 text-center text-muted">
-      <i class="bi bi-person-x fs-4 d-block mb-2"></i>No candidates registered yet</div>`;
-
-    return;
-  }
-
-
-  div.innerHTML = `
-    <div class="table-responsive">
-      <table class="table table-hover mb-0">
-        <thead class="table-light">
-          <tr><th>Name</th><th>Email</th><th>Skills</th><th>Edu.</th><th>Exp.</th><th>Action</th></tr>
-        </thead>
-        <tbody>
-
-           ${candidates.map((c, i) => `
-            <tr>
-              <td><strong>${c.name}</strong></td>
-              <td><small>${c.email}</small></td>
-              <td><small class="text-muted">${c.skills}</small></td>
-              <td>${c.education}</td>
-
-                <td>${c.experience} yr${c.experience != 1 ? 's' : ''}</td>
-              <td>
-                <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${i})">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </td>
-              </tr>
-
-          `).join('')}
-        </tbody>
-      </table>
-    </div>`;
-
-}
 
 
 function deleteCandidate(index) {
@@ -259,18 +227,17 @@ function deleteCandidate(index) {
   const removed = candidates.splice(index, 1);
    localStorage.setItem('candidates', JSON.stringify(candidates));
   showToast(`${removed[0].name} removed`, 'danger');
-  showCandidates();
+  showCandidatesPaginated();
 
 }
 
 function clearAllCandidates() {
   if (!confirm('Delete ALL registered candidates?')) return;
   localStorage.removeItem('candidates');
-  const div = document.getElementById('candidateList');
-  if (div) div.innerHTML = `<div class="p-3 text-center text-muted">All candidates cleared</div>`;
+  currentPage = 1;
+  showCandidatesPaginated();
   showToast('All candidates cleared', 'danger');
 }
-
 
 //  MATCH PAGE (match.html)
 // Populate job dropdown
@@ -295,7 +262,7 @@ function populateJobSelector() {
   });
 }
 
-// core match function — bUG FIXED: uses selected job, not last job
+// core match function — uses selected job
 function matchCandidates() {
   const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
   const jobs       = JSON.parse(localStorage.getItem('jobs'))       || [];
@@ -366,7 +333,18 @@ function matchCandidates() {
   const scoreClass = s => s >= 70 ? 'score-high' : s >= 40 ? 'score-mid' : 'score-low';
   const scoreIcon  = s => s >= 70 ? 'bi-check-circle-fill' : s >= 40 ? 'bi-dash-circle-fill' : 'bi-x-circle-fill';
 
+  const printBtn = document.getElementById('printBtn');
+  if (printBtn) printBtn.style.display = 'block';
 
+  // fire event for React MatchSummary component
+  window.dispatchEvent(new CustomEvent('matchDone', {
+    detail: {
+      total: scored.length,
+      scores: scored.map(c => c.score),
+      best: scored[0].name,
+      bestScore: scored[0].score
+    }
+  }));
   resultDiv.innerHTML = `
     <div class="card shadow border-0 mb-4">
       <div class="card-header bg-primary text-white py-3">
@@ -417,8 +395,8 @@ function matchCandidates() {
                   <td>${c.matched.map(s => `<span class="skill-tag skill-matched"><i class="bi bi-check me-1"></i>${s}</span>`).join('') || '<span class="text-muted">—</span>'}</td>
                   <td>${c.missing.map(s => `<span class="skill-tag skill-missing"><i class="bi bi-x me-1"></i>${s}</span>`).join('') || '<span class="text-success"><i class="bi bi-check-all"></i> All matched</span>'}</td>
                   <td>${c.experience} yr${c.experience != 1 ? 's' : ''}</td>
-                </tr>
-              `).join('')}
+            <td><button class="btn btn-danger btn-sm" onclick="deleteCandidate(${all.indexOf(c)})"><i class="bi bi-trash"></i></button></td>
+          </tr>`).join('')}
             </tbody>
           </table>
         </div>
@@ -520,5 +498,193 @@ function loadDashboard() {
         </div>`;
     }).join('');
     
+  }
+}
+
+// Dark Mode
+document.addEventListener('DOMContentLoaded', function () {
+  const darkToggle = document.getElementById('darkToggle');
+  if (!darkToggle) return;
+  if (localStorage.getItem('darkMode') === 'true') {
+    document.body.classList.add('dark-mode');
+    darkToggle.checked = true;
+  }
+  darkToggle.addEventListener('change', function () {
+    document.body.classList.toggle('dark-mode', this.checked);
+    localStorage.setItem('darkMode', String(this.checked));
+  });
+});
+
+// Candidate search filter
+document.addEventListener('DOMContentLoaded', function () {
+  const searchBox = document.getElementById('candidateSearch');
+  if (!searchBox) return;
+  searchBox.addEventListener('input', function () {
+    const query = this.value.toLowerCase().trim();
+    if (query === '') {
+      currentPage = 1;
+      showCandidatesPaginated();
+      return;
+    }
+    const all = JSON.parse(localStorage.getItem('candidates')) || [];
+    const filtered = all.filter(c =>
+      c.name.toLowerCase().includes(query) ||
+      c.email.toLowerCase().includes(query) ||
+      c.skills.toLowerCase().includes(query)
+    );
+    const div = document.getElementById('candidateList');
+    if (!div) return;
+    if (filtered.length === 0) {
+      div.innerHTML = `<div class="p-3 text-center text-muted">No candidates match your search</div>`;
+      return;
+    }
+    div.innerHTML = `<div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+        <tr><th>Name</th><th>Email</th><th>Skills</th><th>Edu.</th><th>Exp.</th><th>Action</th></tr>
+        </thead><tbody>
+        ${filtered.map(c => `
+          <tr>
+            <td><strong>${c.name}</strong></td>
+            <td><small>${c.email}</small></td>
+            <td><small class="text-muted">${c.skills}</small></td>
+            <td>${c.education}</td>
+            <td>${c.experience} yr${c.experience != 1 ? 's' : ''}</td>
+            <td><button class="btn btn-danger btn-sm" onclick="deleteCandidate(${all.indexOf(c)})"><i class="bi bi-trash"></i></button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>
+    <div class="px-3 py-2 border-top">
+      <small class="text-muted">${filtered.length} result${filtered.length !== 1 ? 's' : ''} found</small>
+    </div>`;
+  });
+});
+
+// export candidates as CSV
+function exportCSV() {
+  const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
+  if (candidates.length === 0) { showToast('No candidates to export!', 'warning'); return; }
+  const headers = ['Name', 'Email', 'Skills', 'Education', 'Experience (yrs)'];
+  const rows = candidates.map(c => [c.name, c.email, c.skills, c.education, c.experience]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'smarthire-candidates.csv';
+  a.click();
+  showToast('Candidates exported as CSV!', 'success');
+}
+
+// PAGINATION — shows 10 candidates per page in HR portal
+function showCandidatesPaginated() {
+  const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
+  const div = document.getElementById('candidateList');
+  if (!div) return;
+
+  if (candidates.length === 0) {
+    div.innerHTML = `<div class="p-3 text-center text-muted">
+      <i class="bi bi-person-x fs-4 d-block mb-2"></i>No candidates registered yet</div>`;
+    return;
+  }
+
+  const totalPages = Math.ceil(candidates.length / PAGE_SIZE);
+  if (currentPage > totalPages) currentPage = totalPages;
+
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const paginated = candidates.slice(start, start + PAGE_SIZE);
+
+  let html = `<div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead class="table-light">
+        <tr><th>Name</th><th>Email</th><th>Skills</th><th>Edu.</th><th>Exp.</th><th>Action</th></tr>
+      </thead><tbody>`;
+
+  html += paginated.map((c, i) => `
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td><small>${c.email}</small></td>
+      <td><small class="text-muted">${c.skills}</small></td>
+      <td>${c.education}</td>
+      <td>${c.experience} yr${c.experience != 1 ? 's' : ''}</td>
+      <td>
+        <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${start + i})">
+          <i class="bi bi-trash"></i>
+        </button>
+      </td>
+    </tr>`).join('');
+
+  html += `</tbody></table></div>`;
+
+  // pagination controls
+  html += `<div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+    <small class="text-muted">Showing ${start + 1}–${Math.min(start + PAGE_SIZE, candidates.length)} of ${candidates.length}</small>
+    <div class="d-flex gap-2">
+      <button class="btn btn-sm btn-outline-secondary" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
+        <i class="bi bi-chevron-left"></i> Prev
+      </button>
+      <span class="btn btn-sm btn-primary disabled">${currentPage} / ${totalPages}</span>
+      <button class="btn btn-sm btn-outline-secondary" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
+        Next <i class="bi bi-chevron-right"></i>
+      </button>
+    </div>
+  </div>`;
+
+  div.innerHTML = html;
+}
+
+function changePage(direction) {
+  currentPage += direction;
+  showCandidatesPaginated();
+}
+
+// CHART.JS — Job type pie chart + Experience bar chart
+function loadCharts() {
+  const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
+  const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
+
+  // Job Types Pie Chart
+  const jobTypeCanvas = document.getElementById('jobTypeChart');
+  if (jobTypeCanvas) {
+    const typeCounts = {};
+    jobs.forEach(j => { typeCounts[j.type] = (typeCounts[j.type] || 0) + 1; });
+    const labels = Object.keys(typeCounts);
+    const data = Object.values(typeCounts);
+
+    if (labels.length === 0) {
+      jobTypeCanvas.parentElement.innerHTML = '<p class="text-muted text-center py-4">No jobs posted yet</p>';
+    } else {
+      new Chart(jobTypeCanvas, {
+        type: 'doughnut',
+        data: {
+          labels,
+          datasets: [{ data, backgroundColor: ['#0d6efd','#198754','#ffc107','#dc3545','#0dcaf0'] }]
+        },
+        options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+      });
+    }
+  }
+
+  // Experience Distribution Bar Chart
+  const expCanvas = document.getElementById('expChart');
+  if (expCanvas) {
+    const buckets = { '0 yrs': 0, '1 yr': 0, '2 yrs': 0, '3 yrs': 0, '4+ yrs': 0 };
+    candidates.forEach(c => {
+      const exp = parseInt(c.experience) || 0;
+      if (exp === 0) buckets['0 yrs']++;
+      else if (exp === 1) buckets['1 yr']++;
+      else if (exp === 2) buckets['2 yrs']++;
+      else if (exp === 3) buckets['3 yrs']++;
+      else buckets['4+ yrs']++;
+    });
+
+    new Chart(expCanvas, {
+      type: 'bar',
+      data: {
+        labels: Object.keys(buckets),
+        datasets: [{ label: 'Candidates', data: Object.values(buckets), backgroundColor: '#0d6efd' }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+    });
   }
 }
