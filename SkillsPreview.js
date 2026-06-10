@@ -4,7 +4,7 @@
  
 */
 
-const { useState: useState, useEffect: useEffect } = React;
+const { useState, useEffect } = React;
 function SkillsPreview() {
   const [skills, setSkills] = useState([]);
 
@@ -58,5 +58,5 @@ function SkillsPreview() {
 
 const skillsRoot = document.getElementById('skills-preview-root');
 if (skillsRoot) {
-  ReactDOM.render(React.createElement(SkillsPreview), skillsRoot);
+  ReactDOM.createRoot(skillsRoot).render(React.createElement(SkillsPreview));
 }

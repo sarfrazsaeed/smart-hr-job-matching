@@ -3,7 +3,7 @@
   Shows a summary banner after job matching runs
 */
 
-const { useState: useState, useEffect: useEffect } = React;
+const { useState, useEffect } = React;
 
 function MatchSummary() {
   const [summary, setSummary] = useState(null);
@@ -95,5 +95,5 @@ function MatchSummary() {
 
 const matchRoot = document.getElementById('match-summary-root');
 if (matchRoot) {
-  ReactDOM.render(React.createElement(MatchSummary), matchRoot);
+  ReactDOM.createRoot(matchRoot).render(React.createElement(MatchSummary));
 }

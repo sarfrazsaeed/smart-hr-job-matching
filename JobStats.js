@@ -3,8 +3,7 @@
   Shows live job statistics bar on HR Portal page
 */
 
-const { useState: useState, useEffect: useEffect } = React;
-
+const { useState, useEffect } = React;
 function JobStats() {
   const [stats, setStats] = useState({
     total: 0,
@@ -139,5 +138,5 @@ function JobStats() {
 
 const jobStatsRoot = document.getElementById('job-stats-root');
 if (jobStatsRoot) {
-  ReactDOM.render(React.createElement(JobStats), jobStatsRoot);
+  ReactDOM.createRoot(jobStatsRoot).render(React.createElement(JobStats));
 }

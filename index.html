@@ -10,6 +10,26 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    darkMode: 'class',
+    corePlugins: { preflight: false },
+    theme: {
+      extend: {
+        colors: {
+          brand: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
+          surface: { DEFAULT:'#ffffff', dark:'#1e1e35' }
+        },
+        fontFamily: {
+          sans: ['Inter','Segoe UI','Arial','sans-serif'],
+          heading: ['Poppins','Segoe UI','Arial','sans-serif']
+        }
+      }
+    }
+  }
+</script>
+  <script src="https://unpkg.com/typescript@5.4.5/lib/typescript.js"></script>
   <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
 </head>
@@ -26,21 +46,20 @@
     </button>
 
     <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav ms-auto">
-
-<li class="nav-item"><a class="nav-link active" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li>
-<li class="nav-item"><a class="nav-link" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li>
-<li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li>
-<li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li>
-<li class="nav-item"><a class="nav-link" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li>
-
-<li class="nav-item ms-2 d-flex align-items-center">
-  <div class="form-check form-switch mb-0">
-    <input class="form-check-input" type="checkbox" id="darkToggle" role="switch">
-    <label class="form-check-label text-white" for="darkToggle">Dark</label>
-  </div>
-</li>
-      </ul>
+      
+<ul class="navbar-nav ms-auto">
+  <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li>
+  <li class="nav-item"><a class="nav-link" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li>
+  <li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li>
+  <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li>
+  <li class="nav-item"><a class="nav-link" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li>
+  <li class="nav-item ms-2 d-flex align-items-center">
+    <div class="form-check form-switch mb-0">
+      <input class="form-check-input" type="checkbox" id="darkToggle" role="switch">
+      <label class="form-check-label text-white" for="darkToggle">Dark</label>
+    </div>
+  </li>
+</ul>
     </div>
   </div>
 </nav>
@@ -51,7 +70,7 @@
   <div class="container">
     <h1 class="display-5 fw-bold"><i class="bi bi-person-check-fill me-2"></i>Candidate Registration</h1>
 
-    <h3>Register your profile and get matched with the perfect job opportunity</h3>
+    <p class="lead opacity-75">Register your profile and get matched with the perfect job opportunity</p>
   </div>
 </div>
 
@@ -72,7 +91,7 @@
       <div class="card shadow border-0">
         <div class="card-header bg-primary text-white py-3">
           
-          <h4 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Register Your Profile</h4>
+          <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Register Your Profile</h5>
         </div>
         <div class="card-body p-4">
           <form id="candidateForm" novalidate>
@@ -143,7 +162,7 @@
 </div>
 
 <footer class="bg-dark text-white text-center py-3 mt-auto">
-  <small class="opacity-50">© 2026 SmartHire — HTML · CSS · JavaScript · React · Bootstrap · Chart.js</small>
+  <small class="opacity-50">© 2026 SmartHire — HTML · Tailwind · TypeScript · JavaScript · React · Bootstrap · Chart.js</small>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

@@ -594,6 +594,22 @@ body.dark-mode .form-label {
   color: #cbd5e1 !important;
 }
 
+/* Dark Mode Toggle Fix */
+body.dark-mode .form-check-input {
+  background-color: #0d6efd !important;
+  border-color: #0d6efd !important;
+}
+body.dark-mode .form-check-input:not(:checked) {
+  background-color: #444 !important;
+  border-color: #555 !important;
+}
+
+/* Navbar dark mode enhancement */
+body.dark-mode .navbar {
+  background: linear-gradient(135deg, #0a0a14, #0f0c29) !important;
+  border-bottom: 1px solid rgba(255,255,255,0.06) !important;
+}
+
 /* ── HR PAGE BUTTON VISIBILITY FIX ── */
 .btn-outline-success {
   color: #146c43 !important;
@@ -652,4 +668,29 @@ body.dark-mode .btn-outline-danger {
 body.dark-mode .btn-outline-danger:hover {
   background: #dc3545 !important;
   color: #fff !important;
+}
+
+/* ── TAILWIND + BOOTSTRAP CONFLICT FIX ── */
+/* Tailwind's .collapse utility sets visibility:collapse which hides Bootstrap's navbar */
+.navbar-collapse {
+  visibility: visible !important;
+}
+
+/* On desktop (lg and up) force the navbar menu to show as flex */
+@media (min-width: 992px) {
+  .navbar-collapse {
+    display: flex !important;
+    flex-basis: auto !important;
+    visibility: visible !important;
+  }
+  .navbar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+  }
+}
+
+/* On mobile, when Bootstrap adds .show class, make it visible */
+.navbar-collapse.show,
+.navbar-collapse.collapsing {
+  visibility: visible !important;
 }
