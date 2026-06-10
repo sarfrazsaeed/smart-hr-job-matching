@@ -37,25 +37,6 @@ How to Run
 2. Open index.html in any browser
 3. No installation or server required
 
- Author
-**Sarfraz Saeed**
-GitHub: [@sarfrazsaeed](https://github.com/sarfrazsaeed)
-Web Developer — HTML · CSS · Bootstrap · JavaScript
-
-## Screenshots
-
-### Candidate Registration
-![Candidate Registration](screenshots/candidate.png)
-
-### HR Portal
-![HR Portal](screenshots/hr.png)
-
-### Match Results
-![Match Results](screenshots/match.png)
-
-### Dashboard
-![Dashboard](screenshots/dashboard.png)
-
 ---
 © 2026 Sarfraz Saeed. All Rights Reserved.
 Unauthorized copying or use of this project is strictly prohibited.
