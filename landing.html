@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SmartHire — AI-Powered HR & Job Matching System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="style.css" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      corePlugins: { preflight: false },
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
+            surface: { DEFAULT:'#ffffff', dark:'#1e1e35' }
+          },
+          fontFamily: {
+            sans: ['Inter','Segoe UI','Arial','sans-serif'],
+            heading: ['Poppins','Segoe UI','Arial','sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://unpkg.com/typescript@5.4.5/lib/typescript.js"></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+
+</head>
+<body>
+
+<!-- ══ NAVBAR ══════════════════════════════════════════════ -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm" style="position:relative;z-index:100;">
+  <div class="container">
+    <a class="navbar-brand fw-bold fs-4" href="landing.html">
+      <i class="bi bi-people-fill text-primary me-2"></i>SmartHire
+    </a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navMenu">
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
+        <li class="nav-item"><a class="nav-link" href="#how-it-works">How It Works</a></li>
+        <li class="nav-item"><a class="nav-link" href="#pricing">Pricing</a></li>
+        <li class="nav-item"><a class="nav-link" href="#tech-stack">Tech Stack</a></li>
+        <li class="nav-item ms-2">
+          <a class="btn btn-primary btn-sm px-3 rounded-pill" href="index.html">
+            <i class="bi bi-rocket-takeoff-fill me-1"></i>Launch App
+          </a>
+        </li>
+        <li class="nav-item ms-2 d-flex align-items-center">
+          <div class="form-check form-switch mb-0">
+            <input class="form-check-input" type="checkbox" id="darkToggle" role="switch">
+            <label class="form-check-label text-white" for="darkToggle">Dark</label>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<!-- ══ HERO ════════════════════════════════════════════════ -->
+<section class="landing-hero">
+  <div class="hero-glow glow-blue"></div>
+  <div class="hero-glow glow-purple"></div>
+
+  <div class="container" style="flex:1; display:flex; align-items:center; padding: 80px 12px;">
+    <div class="row align-items-center gy-5">
+
+      <div class="col-lg-6">
+        <div class="hero-badge">
+          <i class="bi bi-stars"></i>
+          Smart Skill-Based Matching — No Backend Needed to Try
+        </div>
+        <h1 class="hero-title mb-4">
+          Hire the<br>
+          <span class="highlight">Right Talent</span><br>
+          Instantly
+        </h1>
+        <p class="hero-sub mb-5">
+          SmartHire matches candidates to job openings using a weighted scoring algorithm —
+          skills, experience, and education — so your HR team stops guessing and starts hiring.
+        </p>
+        <div class="d-flex flex-wrap gap-3">
+          <a href="index.html" class="btn-hero-primary">
+            <i class="bi bi-rocket-takeoff-fill"></i>Start Free — No Signup
+          </a>
+          <a href="#how-it-works" class="btn-hero-secondary">
+            <i class="bi bi-play-circle-fill"></i>See How It Works
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat-pill">
+            <span class="num">70%</span>
+            <span class="lbl">Skill Weight</span>
+          </div>
+          <div class="hero-stat-pill">
+            <span class="num">20%</span>
+            <span class="lbl">Experience Weight</span>
+          </div>
+          <div class="hero-stat-pill">
+            <span class="num">10%</span>
+            <span class="lbl">Education Weight</span>
+          </div>
+          <div class="hero-stat-pill">
+            <span class="num">5</span>
+            <span class="lbl">Pages, 0 Backend</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6 d-none d-lg-block">
+        <!-- Mock UI preview card -->
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:24px;">
+          <div style="background:rgba(255,255,255,0.06);border-radius:12px;padding:16px;margin-bottom:12px;">
+            <div style="color:rgba(255,255,255,0.5);font-size:0.75rem;margin-bottom:8px;">TOP MATCH</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:#fff;font-weight:600;">Sarfraz Saeed</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:0.8rem;">React, TypeScript, Tailwind CSS</div>
+              </div>
+              <div style="background:linear-gradient(135deg,#22C55E,#16A34A);color:#fff;font-weight:700;font-size:1.2rem;padding:10px 16px;border-radius:10px;">92%</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.08);border-radius:50px;height:6px;margin-top:12px;overflow:hidden;">
+              <div style="width:92%;height:100%;background:linear-gradient(90deg,#22C55E,#16A34A);border-radius:50px;"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:16px;margin-bottom:12px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:rgba(255,255,255,0.8);font-weight:600;">Ahmed Ali</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:0.8rem;">JavaScript, Node.js, CSS</div>
+              </div>
+              <div style="background:linear-gradient(135deg,#F59E0B,#D97706);color:#fff;font-weight:700;font-size:1.2rem;padding:10px 16px;border-radius:10px;">67%</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.08);border-radius:50px;height:6px;margin-top:12px;overflow:hidden;">
+              <div style="width:67%;height:100%;background:linear-gradient(90deg,#F59E0B,#D97706);border-radius:50px;"></div>
+            </div>
+          </div>
+          <div style="background:rgba(255,255,255,0.04);border-radius:12px;padding:16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:rgba(255,255,255,0.8);font-weight:600;">Fatima Khan</div>
+                <div style="color:rgba(255,255,255,0.4);font-size:0.8rem;">Python, Django, SQL</div>
+              </div>
+              <div style="background:linear-gradient(135deg,#EF4444,#DC2626);color:#fff;font-weight:700;font-size:1.2rem;padding:10px 16px;border-radius:10px;">41%</div>
+            </div>
+            <div style="background:rgba(255,255,255,0.08);border-radius:50px;height:6px;margin-top:12px;overflow:hidden;">
+              <div style="width:41%;height:100%;background:linear-gradient(90deg,#EF4444,#DC2626);border-radius:50px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ FEATURES ════════════════════════════════════════════ -->
+<section class="section-pad" id="features">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-3 py-2 rounded-pill mb-3 d-inline-block">Features</span>
+      <h2 class="section-title">Everything Your HR Team Needs</h2>
+      <p class="text-muted" style="max-width:500px;margin:0 auto;">Built for speed. No account required. All data stays in your browser.</p>
+    </div>
+    <div class="row g-4">
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:#DBEAFE;">
+            <i class="bi bi-diagram-3-fill text-primary"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Smart Skill Matching</h5>
+          <p class="text-muted small mb-0">Weighted algorithm scores every candidate against your job requirements — 70% skills, 20% experience, 10% education.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:#D1FAE5;">
+            <i class="bi bi-bar-chart-fill" style="color:#059669;"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Live Dashboard</h5>
+          <p class="text-muted small mb-0">4 real-time Chart.js visualisations — doughnut, bar, radar, and polar charts showing your full hiring pipeline.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:#EDE9FE;">
+            <i class="bi bi-people-fill" style="color:#7C3AED;"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Candidate Management</h5>
+          <p class="text-muted small mb-0">Register, search, filter, and paginate candidates. Duplicate email prevention built in. CSV export in one click.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:#FEF3C7;">
+            <i class="bi bi-briefcase-fill" style="color:#D97706;"></i>
+          </div>
+          <h5 class="fw-bold mb-2">HR Job Portal</h5>
+          <p class="text-muted small mb-0">Post jobs with required skills, minimum experience, and job type. Live stats show total jobs and most-posted category.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:#FEE2E2;">
+            <i class="bi bi-moon-stars-fill" style="color:#DC2626;"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Dark Mode</h5>
+          <p class="text-muted small mb-0">Full dark mode that persists across all pages and browser sessions. Toggle once, remembered forever.</p>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-4">
+        <div class="feature-card">
+          <div class="feature-icon" style="background:#F0FDF4;">
+            <i class="bi bi-download" style="color:#16A34A;"></i>
+          </div>
+          <h5 class="fw-bold mb-2">CSV Export</h5>
+          <p class="text-muted small mb-0">Download your entire candidate database as a spreadsheet with one click. Filter first, then export only what you need.</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ═════════════════════════════════════════ -->
+<section class="section-pad" id="how-it-works" style="background:#F8FAFC;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge bg-success bg-opacity-10 text-success fw-semibold px-3 py-2 rounded-pill mb-3 d-inline-block">Process</span>
+      <h2 class="section-title">How SmartHire Works</h2>
+      <p class="text-muted">Three steps from job posting to ranked candidates.</p>
+    </div>
+    <div class="row justify-content-center">
+      <div class="col-lg-7">
+
+        <div class="d-flex gap-4 mb-4">
+          <div class="d-flex flex-column align-items-center">
+            <div class="step-number">1</div>
+            <div class="step-connector mt-2"></div>
+          </div>
+          <div class="pb-4">
+            <h5 class="fw-bold mb-1">Post a Job</h5>
+            <p class="text-muted mb-0">HR manager goes to HR Portal, enters job title, required skills (comma separated), minimum years of experience, and job type.</p>
+          </div>
+        </div>
+
+        <div class="d-flex gap-4 mb-4">
+          <div class="d-flex flex-column align-items-center">
+            <div class="step-number">2</div>
+            <div class="step-connector mt-2"></div>
+          </div>
+          <div class="pb-4">
+            <h5 class="fw-bold mb-1">Candidates Register</h5>
+            <p class="text-muted mb-0">Candidates fill in their name, email, skills, education, and years of experience on the Candidate Registration page.</p>
+          </div>
+        </div>
+
+        <div class="d-flex gap-4 mb-4">
+          <div class="d-flex flex-column align-items-center">
+            <div class="step-number">3</div>
+            <div class="step-connector mt-2"></div>
+          </div>
+          <div class="pb-4">
+            <h5 class="fw-bold mb-1">Algorithm Scores Everyone</h5>
+            <p class="text-muted mb-0">The matching engine compares each candidate against the job. Skills matched ÷ skills required × 70 + experience score × 20 + education × 10.</p>
+          </div>
+        </div>
+
+        <div class="d-flex gap-4">
+          <div class="step-number" style="background:linear-gradient(135deg,#059669,#047857);">
+            <i class="bi bi-check-lg"></i>
+          </div>
+          <div>
+            <h5 class="fw-bold mb-1">See Ranked Results</h5>
+            <p class="text-muted mb-0">Top 20 candidates ranked by match score. Green = strong match, yellow = partial, red = weak. Download the list or share it with your team.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ PRICING ══════════════════════════════════════════════ -->
+<section class="section-pad" id="pricing">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-3 py-2 rounded-pill mb-3 d-inline-block">Pricing</span>
+      <h2 class="section-title">Simple, Transparent Pricing</h2>
+      <p class="text-muted">Start free. Upgrade when your team grows.</p>
+    </div>
+    <div class="row g-4 justify-content-center align-items-start">
+
+      <div class="col-md-6 col-lg-3">
+        <div class="pricing-card">
+          <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size:0.75rem;letter-spacing:1px;">Free Forever</h6>
+          <div class="price-amount mb-1">Rs 0</div>
+          <div class="text-muted small mb-4">per month</div>
+          <a href="index.html" class="btn btn-outline-primary w-100 rounded-pill mb-4">Get Started</a>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>5 candidates</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>3 job postings</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>Basic matching</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>Dashboard charts</li>
+            <li class="text-muted mb-2"><i class="bi bi-x-circle me-2"></i>No email notifications</li>
+            <li class="text-muted"><i class="bi bi-x-circle me-2"></i>No multi-user</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="pricing-card popular">
+          <div class="popular-badge">Most Popular</div>
+          <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size:0.75rem;letter-spacing:1px;">Starter</h6>
+          <div class="price-amount text-primary mb-1">Rs 999</div>
+          <div class="text-muted small mb-4">per month</div>
+          <a href="index.html" class="btn btn-primary w-100 rounded-pill mb-4">Start Trial</a>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>50 candidates</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>20 job postings</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>Full matching</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>CSV export</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>Email support</li>
+            <li class="text-muted"><i class="bi bi-x-circle me-2"></i>No multi-user</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="pricing-card">
+          <h6 class="text-muted fw-semibold text-uppercase mb-3" style="font-size:0.75rem;letter-spacing:1px;">Professional</h6>
+          <div class="price-amount mb-1">Rs 2,999</div>
+          <div class="text-muted small mb-4">per month</div>
+          <a href="index.html" class="btn btn-outline-primary w-100 rounded-pill mb-4">Start Trial</a>
+          <ul class="list-unstyled small">
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>500 candidates</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>Unlimited jobs</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>AI matching</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>Email notifications</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>3 HR users</li>
+            <li class="mb-2"><i class="bi bi-check-circle-fill price-check me-2"></i>Analytics</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-lg-3">
+        <div class="pricing-card" style="background:linear-gradient(135deg,#0a0a1a,#1a1040);border-color:rgba(255,255,255,0.1);">
+          <h6 class="fw-semibold text-uppercase mb-3" style="font-size:0.75rem;letter-spacing:1px;color:rgba(255,255,255,0.5);">Enterprise</h6>
+          <div class="price-amount text-white mb-1">Custom</div>
+          <div class="mb-4" style="color:rgba(255,255,255,0.4);font-size:0.875rem;">contact us</div>
+          <a href="about.html" class="btn btn-outline-light w-100 rounded-pill mb-4">Contact Sales</a>
+          <ul class="list-unstyled small">
+            <li class="mb-2" style="color:rgba(255,255,255,0.7);"><i class="bi bi-check-circle-fill price-check me-2"></i>Unlimited everything</li>
+            <li class="mb-2" style="color:rgba(255,255,255,0.7);"><i class="bi bi-check-circle-fill price-check me-2"></i>White-label option</li>
+            <li class="mb-2" style="color:rgba(255,255,255,0.7);"><i class="bi bi-check-circle-fill price-check me-2"></i>Dedicated server</li>
+            <li class="mb-2" style="color:rgba(255,255,255,0.7);"><i class="bi bi-check-circle-fill price-check me-2"></i>SLA guarantee</li>
+            <li style="color:rgba(255,255,255,0.7);"><i class="bi bi-check-circle-fill price-check me-2"></i>Training included</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+    <p class="text-center text-muted small mt-4">
+      <i class="bi bi-info-circle me-1"></i>
+      Pricing plans require backend (Phase 5). Current version is fully functional and free — all data stored locally in your browser.
+    </p>
+  </div>
+</section>
+
+<!-- ══ TECH STACK ════════════════════════════════════════════ -->
+<section class="section-pad" id="tech-stack" style="background:#F8FAFC;">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="badge bg-info bg-opacity-10 text-info fw-semibold px-3 py-2 rounded-pill mb-3 d-inline-block">Built With</span>
+      <h2 class="section-title">Tech Stack</h2>
+      <p class="text-muted">Modern frontend technologies, production-quality code.</p>
+    </div>
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+      <span class="tech-badge"><i class="bi bi-filetype-html text-danger"></i>HTML5</span>
+      <span class="tech-badge"><i class="bi bi-filetype-css text-primary"></i>CSS3</span>
+      <span class="tech-badge"><i class="bi bi-filetype-js text-warning"></i>JavaScript ES6+</span>
+      <span class="tech-badge"><i class="bi bi-filetype-tsx text-info"></i>TypeScript</span>
+      <span class="tech-badge" style="color:#06B6D4;"><i class="bi bi-wind me-1"></i>Tailwind CSS</span>
+      <span class="tech-badge text-primary"><i class="bi bi-bootstrap-fill me-1"></i>Bootstrap 5</span>
+      <span class="tech-badge" style="color:#61DAFB;"><i class="bi bi-atom me-1"></i>React 18</span>
+      <span class="tech-badge" style="color:#FF6384;"><i class="bi bi-bar-chart-fill me-1"></i>Chart.js</span>
+      <span class="tech-badge"><i class="bi bi-github me-1"></i>GitHub Pages</span>
+      <span class="tech-badge"><i class="bi bi-code-slash me-1"></i>ESLint + Prettier</span>
+    </div>
+    <div class="text-center mt-5">
+      <a href="https://github.com/sarfrazsaeed/smart-hr-job-matching" target="_blank" class="btn btn-dark btn-lg rounded-pill px-5">
+        <i class="bi bi-github me-2"></i>View Source on GitHub
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CTA BANNER ═══════════════════════════════════════════ -->
+<section style="background:linear-gradient(135deg,#1B4FD8,#7C3AED);padding:70px 0;">
+  <div class="container text-center">
+    <h2 class="section-title text-white mb-3">Ready to Hire Smarter?</h2>
+    <p style="color:rgba(255,255,255,0.75);font-size:1.1rem;margin-bottom:36px;max-width:480px;margin-left:auto;margin-right:auto;">
+      No signup. No backend. No credit card. Just open the app and start matching candidates in 60 seconds.
+    </p>
+    <a href="index.html" class="btn-hero-primary" style="background:rgba(255,255,255,0.15);border:2px solid rgba(255,255,255,0.4);">
+      <i class="bi bi-rocket-takeoff-fill"></i>Open SmartHire Free
+    </a>
+  </div>
+</section>
+
+<!-- ══ FOOTER ════════════════════════════════════════════════ -->
+<footer class="landing-footer py-5">
+  <div class="container">
+    <div class="row gy-4">
+      <div class="col-md-4">
+        <div class="fw-bold fs-5 text-white mb-2"><i class="bi bi-people-fill text-primary me-2"></i>SmartHire</div>
+        <p style="color:rgba(255,255,255,0.4);font-size:0.875rem;">An AI-powered HR and job matching system built by a Computer Science student at Air University Islamabad.</p>
+      </div>
+      <div class="col-md-2">
+        <div class="text-white fw-semibold mb-3 small">App</div>
+        <ul class="list-unstyled small">
+          <li class="mb-2"><a href="index.html">Candidate</a></li>
+          <li class="mb-2"><a href="hr.html">HR Portal</a></li>
+          <li class="mb-2"><a href="match.html">Match</a></li>
+          <li class="mb-2"><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="about.html">About</a></li>
+        </ul>
+      </div>
+      <div class="col-md-2">
+        <div class="text-white fw-semibold mb-3 small">Info</div>
+        <ul class="list-unstyled small">
+          <li class="mb-2"><a href="#features">Features</a></li>
+          <li class="mb-2"><a href="#how-it-works">How It Works</a></li>
+          <li class="mb-2"><a href="#pricing">Pricing</a></li>
+          <li><a href="#tech-stack">Tech Stack</a></li>
+        </ul>
+      </div>
+      <div class="col-md-4">
+        <div class="text-white fw-semibold mb-3 small">Developer</div>
+        <p style="color:rgba(255,255,255,0.4);font-size:0.875rem;">Sarfraz Saeed<br>Computer Science — Air University Islamabad</p>
+        <a href="https://github.com/sarfrazsaeed/smart-hr-job-matching" target="_blank" class="btn btn-sm btn-outline-secondary rounded-pill mt-1">
+          <i class="bi bi-github me-1"></i>GitHub
+        </a>
+      </div>
+    </div>
+    <hr style="border-color:rgba(255,255,255,0.08);margin:32px 0 20px;">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <span style="font-size:0.8rem;">© 2025 SmartHire — Sarfraz Saeed. Built as an academic project.</span>
+      <span style="font-size:0.8rem;">Phase 1 Complete · Frontend Only · Backend Coming in Phase 5</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>

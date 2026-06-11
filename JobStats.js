@@ -3,9 +3,9 @@
   Shows live job statistics bar on HR Portal page
 */
 
-const { useState, useEffect } = React;
+
 function JobStats() {
-  const [stats, setStats] = useState({
+  const [stats, setStats] = React.useState({
     total: 0,
     types: {},
     topType: '—'
@@ -23,7 +23,7 @@ function JobStats() {
     setStats({ total: jobs.length, types, topType });
   }
 
-  useEffect(() => {
+  React.useEffect(() => {
     calculateStats();
 
     // re-calculate whenever localStorage changes (job posted/deleted)

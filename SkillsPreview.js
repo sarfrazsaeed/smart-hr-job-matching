@@ -4,11 +4,9 @@
  
 */
 
-const { useState, useEffect } = React;
 function SkillsPreview() {
-  const [skills, setSkills] = useState([]);
-
-  useEffect(() => {
+  const [skills, setSkills] = React.useState([]);
+  React.useEffect(() => {
     const skillsInput = document.getElementById('skills');
     if (!skillsInput) return;
 

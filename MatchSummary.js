@@ -3,12 +3,10 @@
   Shows a summary banner after job matching runs
 */
 
-const { useState, useEffect } = React;
-
 function MatchSummary() {
-  const [summary, setSummary] = useState(null);
+  const [summary, setSummary] = React.useState(null);
 
-  useEffect(() => {
+  React.useEffect(() => {
     // Listen for custom event fired by matchCandidates()
     function handleMatchDone(e) {
       setSummary(e.detail);

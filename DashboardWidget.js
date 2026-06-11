@@ -1,9 +1,9 @@
-const { useState, useEffect } = React;
+
 
 function DashboardWidget() {
-  const [stats, setStats] = useState({ candidates: 0, jobs: 0, skills: 0 });
+  const [stats, setStats] = React.useState({ candidates: 0, jobs: 0, skills: 0 });
 
-  useEffect(() => {
+  React.useEffect(() => {
     const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
     const jobs = JSON.parse(localStorage.getItem('jobs')) || [];
     const allSkills = candidates.flatMap(c =>
