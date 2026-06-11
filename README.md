@@ -18,19 +18,24 @@ Live Demo
 •	Fully responsive works on mobile and desktop
 
 Tech Stack
-- HTML5
-- CSS3
+- HTML5 + CSS3
+- JavaScript ES6+
+- TypeScript (types & interfaces)
 - Bootstrap 5
-- JavaScript Vanilla
+- Tailwind CSS
+- React 18 (component widgets)
+- Chart.js (4 chart types)
 - Browser localStorage
+- ESLint + Prettier
 
 Pages
-| Page | Description |
-| index.html | Candidate registration form |
-| hr.html | HR job posting portal |
-| match.html | Job candidate skill matching |
-| dashboard.html | Stats and skill distribution |
-| about.html | Project information |
+- landing.html — Marketing homepage with pricing
+- index.html  — Candidate registration
+- hr.html     — HR job posting portal
+- match.html  — Skill-based job matching
+- dashboard.html — Live stats and charts
+- about.html  — About the project
+- 404.html    — Error page
 
 How to Run
 1. Clone or download this repository
