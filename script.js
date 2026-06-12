@@ -1,18 +1,69 @@
 //  SmartHire — script.js  
 
+/* ── Skeleton loader HTML helper ── */
+function skeletonTable(rows = 5) {
+  let html = '';
+  for (let i = 0; i < rows; i++) {
+    html += `<div class="skeleton-row">
+      <div class="skeleton skeleton-avatar"></div>
+      <div style="flex:1">
+        <div class="skeleton skeleton-line" style="width:${55 + Math.random()*30|0}%"></div>
+        <div class="skeleton skeleton-line-sm" style="width:${30 + Math.random()*25|0}%"></div>
+      </div>
+      <div class="skeleton skeleton-line" style="width:60px"></div>
+    </div>`;
+  }
+  return html;
+}
+
+/* ── Empty state HTML helper ── */
+function emptyState(icon, title, msg, btnHtml = '') {
+  return `<div class="empty-state">
+    <i class="bi ${icon} empty-state-icon"></i>
+    <h6>${title}</h6>
+    <p>${msg}</p>
+    ${btnHtml}
+  </div>`;
+}
+
+/* ── Animated count-up for match scores ── */
+function animateScore(el, target, duration = 600) {
+  let start = 0;
+  const step = target / (duration / 16);
+  const timer = setInterval(() => {
+    start = Math.min(start + step, target);
+    el.textContent = Math.round(start) + '%';
+    if (start >= target) clearInterval(timer);
+  }, 16);
+}
+
 let currentPage = 1;
 const PAGE_SIZE = 10;
 
 // toast helper
 function showToast(msg, type = 'success') {
   const toastEl = document.getElementById('toast');
-   if (!toastEl) return;
+  if (!toastEl) return;
+
+  const icons = { success: 'bi-check-circle-fill', danger: 'bi-x-circle-fill', warning: 'bi-exclamation-triangle-fill', info: 'bi-info-circle-fill' };
+  const icon = icons[type] || 'bi-info-circle-fill';
+
   toastEl.className = `toast align-items-center text-white border-0 bg-${type}`;
-   document.getElementById('toastMsg').textContent = msg;
+  document.getElementById('toastMsg').innerHTML = `<i class="bi ${icon} me-2"></i>${msg}`;
+
+  // remove old progress bar if any
+  const oldBar = toastEl.querySelector('.toast-progress');
+  if (oldBar) oldBar.remove();
+
+  // add animated progress bar
+  const bar = document.createElement('div');
+  bar.className = `toast-progress bg-${type}`;
+  toastEl.appendChild(bar);
 
   const toast = new bootstrap.Toast(toastEl, { delay: 3000 });
   toast.show();
 }
+
 
 
 // Duplicate removal (runs on every page load)
@@ -174,10 +225,9 @@ function displayJobs() {
   if (!tbody) return;
 
   if (jobs.length === 0) {
-
-    tbody.innerHTML = `<tr><td colspan="5" class="text-center text-muted py-4">
-      <i class="bi bi-inbox fs-4 d-block mb-2"></i>No jobs posted yet</td></tr>`;
-
+    tbody.innerHTML = `<tr><td colspan="5">
+      ${emptyState('bi-briefcase', 'No Jobs Posted Yet', 'Use the form on the left to post your first job opening.')}
+    </td></tr>`;
     return;
   }
 
@@ -364,6 +414,21 @@ function matchCandidates() {
       bestScore: scored[0].score
     }
   }));
+
+  // animate scores after rendering
+  setTimeout(() => {
+    document.querySelectorAll('.match-score-num').forEach(el => {
+      const target = parseInt(el.dataset.score);
+      el.classList.add('score-animate');
+      animateScore(el, target, 700);
+    });
+    document.querySelectorAll('.bar-animate').forEach(el => {
+      el.style.animation = 'none';
+      void el.offsetWidth; // reflow
+      el.style.animation = '';
+    });
+  }, 50);
+
   resultDiv.innerHTML = `
     <div class="card shadow border-0 mb-4">
       <div class="card-header bg-primary text-white py-3">
@@ -400,15 +465,13 @@ function matchCandidates() {
                   </td>
 
                   <td>
-
-                    <span class="badge ${scoreClass(c.score)} fs-6 px-3 py-2">
+                    <span class="badge ${scoreClass(c.score)} fs-6 px-3 py-2 match-score-num" data-score="${c.score}">
                       <i class="bi ${scoreIcon(c.score)} me-1"></i>${c.score}%
                     </span>
                     <div class="progress mt-1" style="height:5px;width:80px">
-                      <div class="progress-bar bg-${c.score >= 70 ? 'success' : c.score >= 40 ? 'warning' : 'danger'}"
+                      <div class="progress-bar bar-animate bg-${c.score >= 70 ? 'success' : c.score >= 40 ? 'warning' : 'danger'}"
                            style="width:${c.score}%"></div>
                     </div>
-
                   </td>
 
                   <td>${c.matched.map(s => `<span class="skill-tag skill-matched"><i class="bi bi-check me-1"></i>${s}</span>`).join('') || '<span class="text-muted">—</span>'}</td>
@@ -680,59 +743,67 @@ function exportCSV() {
 
 // PAGINATION — shows 10 candidates per page in HR portal
 function showCandidatesPaginated() {
-  const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
   const div = document.getElementById('candidateList');
   if (!div) return;
 
-  if (candidates.length === 0) {
-    div.innerHTML = `<div class="p-3 text-center text-muted">
-      <i class="bi bi-person-x fs-4 d-block mb-2"></i>No candidates registered yet</div>`;
-    return;
-  }
+  div.innerHTML = skeletonTable(5);
 
-  const totalPages = Math.ceil(candidates.length / PAGE_SIZE);
-  if (currentPage > totalPages) currentPage = totalPages;
+  setTimeout(() => {
+    const candidates = JSON.parse(localStorage.getItem('candidates')) || [];
 
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const paginated = candidates.slice(start, start + PAGE_SIZE);
+    if (candidates.length === 0) {
+      div.innerHTML = emptyState(
+        'bi-people',
+        'No Candidates Yet',
+        'No one has registered yet. Share the Candidate Registration page to get started.',
+        `<a href="index.html" class="btn btn-sm btn-primary rounded-pill"><i class="bi bi-person-plus me-1"></i>Register First Candidate</a>`
+      );
+      return;
+    }
 
-  let html = `<div class="table-responsive">
-    <table class="table table-hover mb-0">
-      <thead class="table-light">
-        <tr><th>Name</th><th>Email</th><th>Skills</th><th>Edu.</th><th>Exp.</th><th>Action</th></tr>
-      </thead><tbody>`;
+    const totalPages = Math.ceil(candidates.length / PAGE_SIZE);
+    if (currentPage > totalPages) currentPage = totalPages;
 
-  html += paginated.map((c, i) => `
-    <tr>
-      <td><strong>${c.name}</strong></td>
-      <td><small>${c.email}</small></td>
-      <td><small class="text-muted">${c.skills}</small></td>
-      <td>${c.education}</td>
-      <td>${c.experience} yr${c.experience != 1 ? 's' : ''}</td>
-      <td>
-        <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${start + i})">
-          <i class="bi bi-trash"></i>
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const paginated = candidates.slice(start, start + PAGE_SIZE);
+
+    let html = `<div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr><th>Name</th><th>Email</th><th>Skills</th><th>Edu.</th><th>Exp.</th><th>Action</th></tr>
+        </thead><tbody>`;
+
+    html += paginated.map((c, i) => `
+      <tr>
+        <td><strong>${c.name}</strong></td>
+        <td><small>${c.email}</small></td>
+        <td><small class="text-muted">${c.skills}</small></td>
+        <td>${c.education}</td>
+        <td>${c.experience} yr${c.experience != 1 ? 's' : ''}</td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="deleteCandidate(${start + i})">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      </tr>`).join('');
+
+    html += `</tbody></table></div>`;
+
+    html += `<div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
+      <small class="text-muted">Showing ${start + 1}–${Math.min(start + PAGE_SIZE, candidates.length)} of ${candidates.length}</small>
+      <div class="d-flex gap-2">
+        <button class="btn btn-sm btn-outline-secondary" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
+          <i class="bi bi-chevron-left"></i> Prev
         </button>
-      </td>
-    </tr>`).join('');
+        <span class="btn btn-sm btn-primary disabled">${currentPage} / ${totalPages}</span>
+        <button class="btn btn-sm btn-outline-secondary" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
+          Next <i class="bi bi-chevron-right"></i>
+        </button>
+      </div>
+    </div>`;
 
-  html += `</tbody></table></div>`;
-
-  // pagination controls
-  html += `<div class="d-flex justify-content-between align-items-center px-3 py-2 border-top">
-    <small class="text-muted">Showing ${start + 1}–${Math.min(start + PAGE_SIZE, candidates.length)} of ${candidates.length}</small>
-    <div class="d-flex gap-2">
-      <button class="btn btn-sm btn-outline-secondary" onclick="changePage(-1)" ${currentPage === 1 ? 'disabled' : ''}>
-        <i class="bi bi-chevron-left"></i> Prev
-      </button>
-      <span class="btn btn-sm btn-primary disabled">${currentPage} / ${totalPages}</span>
-      <button class="btn btn-sm btn-outline-secondary" onclick="changePage(1)" ${currentPage === totalPages ? 'disabled' : ''}>
-        Next <i class="bi bi-chevron-right"></i>
-      </button>
-    </div>
-  </div>`;
-
-  div.innerHTML = html;
+    div.innerHTML = html;
+  }, 350);
 }
 
 function changePage(direction) {

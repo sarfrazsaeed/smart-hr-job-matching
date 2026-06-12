@@ -991,3 +991,179 @@ body.dark-mode .quick-links a:hover {
   color: #60A5FA;
   background: rgba(96,165,250,0.1);
 }
+
+/* ══════════════════════════════════════════════
+   SKELETON LOADERS
+══════════════════════════════════════════════ */
+.skeleton {
+  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+  border-radius: 6px;
+  display: inline-block;
+}
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+body.dark-mode .skeleton {
+  background: linear-gradient(90deg, #2d2d4e 25%, #3a3a5c 50%, #2d2d4e 75%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+.skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+}
+body.dark-mode .skeleton-row {
+  border-bottom-color: rgba(255,255,255,0.05);
+}
+.skeleton-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.skeleton-line {
+  height: 14px;
+  border-radius: 4px;
+}
+.skeleton-line-sm {
+  height: 10px;
+  border-radius: 4px;
+  margin-top: 6px;
+}
+
+/* ══════════════════════════════════════════════
+   EMPTY STATES
+══════════════════════════════════════════════ */
+.empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  color: #94a3b8;
+}
+.empty-state-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  opacity: 0.4;
+  display: block;
+}
+.empty-state h6 {
+  font-weight: 600;
+  color: #64748b;
+  margin-bottom: 8px;
+}
+.empty-state p {
+  font-size: 0.875rem;
+  max-width: 280px;
+  margin: 0 auto 16px;
+}
+.empty-state .btn {
+  font-size: 0.875rem;
+}
+body.dark-mode .empty-state h6 { color: rgba(255,255,255,0.5); }
+body.dark-mode .empty-state p  { color: rgba(255,255,255,0.3); }
+
+/* ══════════════════════════════════════════════
+   TOAST IMPROVEMENTS — progress bar
+══════════════════════════════════════════════ */
+.toast-progress {
+  height: 3px;
+  border-radius: 0 0 6px 6px;
+  width: 100%;
+  transform-origin: left;
+  animation: toast-shrink 3s linear forwards;
+}
+@keyframes toast-shrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+.toast-progress.bg-success { background: #22c55e; }
+.toast-progress.bg-danger  { background: #ef4444; }
+.toast-progress.bg-warning { background: #f59e0b; }
+.toast-progress.bg-info    { background: #38bdf8; }
+
+/* ══════════════════════════════════════════════
+   ANIMATED MATCH SCORE
+══════════════════════════════════════════════ */
+@keyframes score-pop {
+  0%   { transform: scale(0.6); opacity: 0; }
+  70%  { transform: scale(1.08); }
+  100% { transform: scale(1);   opacity: 1; }
+}
+.score-animate {
+  animation: score-pop 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+@keyframes bar-grow {
+  from { width: 0 !important; }
+}
+.bar-animate {
+  animation: bar-grow 0.8s ease-out forwards;
+}
+
+/* ══════════════════════════════════════════════
+   PRINT — clean match report
+══════════════════════════════════════════════ */
+@media print {
+  nav.navbar,
+  .hero-section,
+  footer,
+  #printBtn,
+  .btn,
+  .toast-container,
+  #jobSelector,
+  .card-header .d-flex .btn,
+  .form-check {
+    display: none !important;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #dee2e6 !important;
+  }
+  .badge {
+    border: 1px solid #999 !important;
+    color: #000 !important;
+    background: #f8f9fa !important;
+  }
+  table { font-size: 0.8rem; }
+  h5 { font-size: 1rem; }
+  .container { max-width: 100% !important; padding: 0 !important; }
+  @page {
+    margin: 1.5cm;
+    size: A4 landscape;
+  }
+}
+
+/* ══════════════════════════════════════════════
+   MOBILE NAV — hamburger collapse fix
+══════════════════════════════════════════════ */
+@media (max-width: 991.98px) {
+  .navbar-collapse {
+    background: #212529;
+    padding: 12px 16px;
+    border-radius: 0 0 12px 12px;
+    margin-top: 4px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  }
+  .navbar-collapse .nav-link {
+    padding: 10px 8px;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+  }
+  .navbar-collapse .nav-item:last-child .nav-link {
+    border-bottom: none;
+  }
+  .navbar-collapse .form-check {
+    padding: 10px 8px 0;
+  }
+  .navbar-collapse .btn {
+    margin: 8px 0 4px;
+    width: 100%;
+  }
+}
