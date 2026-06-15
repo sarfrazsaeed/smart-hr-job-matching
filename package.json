@@ -7,7 +7,7 @@
       "test": "jest --testEnvironment jsdom",
       "test:watch": "jest --watch --testEnvironment jsdom",
       "test:coverage": "jest --coverage --testEnvironment jsdom",
-      "lint": "eslint __tests__/**/*.js src/**/*.js --ext .js,.jsx",
+      "lint": "eslint --ext .js,.jsx . --ignore-pattern node_modules/ --no-error-on-unmatched-pattern",
       "format": "prettier --write ."
     },
     "jest": {
