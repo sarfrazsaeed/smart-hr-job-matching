@@ -1,99 +1,209 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SmartHire | Page Not Found</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="style.css" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      corePlugins: { preflight: false },
-      theme: {
-        extend: {
-          colors: {
-            brand: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
-            surface: { DEFAULT:'#ffffff', dark:'#1e1e35' }
-          },
-          fontFamily: {
-            sans: ['Inter','Segoe UI','Arial','sans-serif'],
-            heading: ['Poppins','Segoe UI','Arial','sans-serif']
-          }
-        }
-      }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>404 — Page Not Found | SmartHire</title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #0a0a0f;
+      color: #e2e8f0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      overflow: hidden;
     }
-  </script>
-  <script src="https://unpkg.com/typescript@5.4.5/lib/typescript.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 
+    /* Background */
+    .bg-grid {
+      position: fixed; inset: 0;
+      background-image: linear-gradient(rgba(99,102,241,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(99,102,241,0.03) 1px, transparent 1px);
+      background-size: 60px 60px;
+    }
+    .bg-orb {
+      position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none;
+    }
+    .orb-1 { width: 600px; height: 600px; background: rgba(99,102,241,0.08); top: -200px; left: -200px; }
+    .orb-2 { width: 400px; height: 400px; background: rgba(139,92,246,0.06); bottom: -100px; right: -100px; }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      33% { transform: translateY(-20px) rotate(2deg); }
+      66% { transform: translateY(-10px) rotate(-1deg); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 40px rgba(99,102,241,0.2); }
+      50% { box-shadow: 0 0 80px rgba(99,102,241,0.4), 0 0 120px rgba(139,92,246,0.2); }
+    }
+    @keyframes spin-slow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes counter {
+      from { opacity: 0; letter-spacing: -0.1em; }
+      to { opacity: 1; letter-spacing: -0.04em; }
+    }
+
+    .card {
+      position: relative; z-index: 1; text-align: center; max-width: 520px; width: 100%;
+    }
+
+    .num-wrap {
+      position: relative; display: inline-block; margin-bottom: 24px;
+    }
+    .num-404 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(6rem, 18vw, 10rem);
+      font-weight: 900;
+      line-height: 1;
+      background: linear-gradient(135deg, #6366f1 0%, #a78bfa 50%, #34d399 100%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      animation: counter 0.8s ease-out, float 6s ease-in-out 0.8s infinite;
+      display: block;
+    }
+    .ring {
+      position: absolute; border-radius: 50%; border: 2px solid;
+      animation: spin-slow linear infinite;
+    }
+    .ring-1 {
+      width: 140%; height: 140%; top: -20%; left: -20%;
+      border-color: rgba(99,102,241,0.15) rgba(99,102,241,0.05) rgba(99,102,241,0.15) rgba(99,102,241,0.05);
+      animation-duration: 12s;
+    }
+    .ring-2 {
+      width: 160%; height: 160%; top: -30%; left: -30%;
+      border-color: rgba(139,92,246,0.1) rgba(139,92,246,0.02) rgba(139,92,246,0.1) rgba(139,92,246,0.02);
+      animation-duration: 20s; animation-direction: reverse;
+    }
+
+    .icon-circle {
+      width: 80px; height: 80px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2rem; margin: 0 auto 24px;
+      animation: slideUp 0.6s 0.2s ease-out both, pulse-glow 3s ease-in-out infinite;
+    }
+
+    h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.8rem;
+      color: #fff; margin-bottom: 12px;
+      animation: slideUp 0.6s 0.3s ease-out both;
+    }
+    p.sub {
+      color: rgba(255,255,255,0.45); font-size: 0.95rem; line-height: 1.7;
+      margin-bottom: 36px;
+      animation: slideUp 0.6s 0.4s ease-out both;
+    }
+
+    .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; animation: slideUp 0.6s 0.5s ease-out both; }
+    .btn-primary {
+      display: flex; align-items: center; gap: 8px;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff; padding: 13px 24px; border-radius: 12px; font-weight: 700;
+      text-decoration: none; transition: all 0.3s; font-size: 0.9rem;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(99,102,241,0.4); }
+    .btn-ghost {
+      display: flex; align-items: center; gap: 8px;
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.7); padding: 13px 24px; border-radius: 12px; font-weight: 600;
+      text-decoration: none; transition: all 0.3s; font-size: 0.9rem;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+    .links {
+      margin-top: 40px; display: flex; gap: 24px; justify-content: center; flex-wrap: wrap;
+      animation: slideUp 0.6s 0.6s ease-out both;
+    }
+    .links a {
+      color: rgba(255,255,255,0.3); font-size: 0.8rem; text-decoration: none; transition: color 0.2s;
+    }
+    .links a:hover { color: #a5b4fc; }
+
+    .search-wrap {
+      margin: 24px 0 0;
+      animation: slideUp 0.6s 0.55s ease-out both;
+    }
+    .search-box {
+      display: flex; gap: 0; border-radius: 12px; overflow: hidden;
+      border: 1.5px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.04);
+    }
+    .search-box input {
+      flex: 1; padding: 12px 16px; background: transparent; border: none; outline: none;
+      color: #fff; font-size: 0.875rem; font-family: 'Inter', sans-serif;
+    }
+    .search-box input::placeholder { color: rgba(255,255,255,0.3); }
+    .search-box button {
+      padding: 12px 18px; background: #6366f1; border: none; color: #fff; cursor: pointer;
+      font-weight: 600; font-size: 0.875rem; transition: background 0.2s;
+    }
+    .search-box button:hover { background: #4f46e5; }
+  </style>
 </head>
 <body>
 
-<!-- navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-  <div class="container">
-    <a class="navbar-brand fw-bold fs-4" href="index.html">
-      <i class="bi bi-people-fill text-primary me-2"></i>SmartHire
+<div class="bg-grid"></div>
+<div class="bg-orb orb-1"></div>
+<div class="bg-orb orb-2"></div>
+
+<div class="card">
+  <div class="num-wrap">
+    <div class="ring ring-1"></div>
+    <div class="ring ring-2"></div>
+    <span class="num-404">404</span>
+  </div>
+
+  <div class="icon-circle">🔍</div>
+
+  <h1>Page Not Found</h1>
+  <p class="sub">
+    The page you're looking for doesn't exist or has been moved.<br>
+    Let's get you back to matching talent.
+  </p>
+
+  <div class="actions">
+    <a href="landing.html" class="btn-primary">
+      <i class="bi bi-house-fill"></i> Go Home
     </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navMenu">
-      <ul class="navbar-nav ms-auto">
-        <li class="nav-item"><a class="nav-link" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li>
-        <li class="nav-item"><a class="nav-link" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li>
-        <li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li>
-        <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li>
-        <li class="nav-item"><a class="nav-link" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li>
-        <li class="nav-item ms-2 d-flex align-items-center">
-          <div class="form-check form-switch mb-0">
-            <input class="form-check-input" type="checkbox" id="darkToggle" role="switch">
-            <label class="form-check-label text-white" for="darkToggle">Dark</label>
-          </div>
-        </li>
-      </ul>
+    <a href="index.html" class="btn-ghost">
+      <i class="bi bi-rocket-takeoff-fill"></i> Launch App
+    </a>
+  </div>
+
+  <div class="search-wrap">
+    <div class="search-box">
+      <input type="text" placeholder="Search candidates, jobs, features…" id="searchInput" onkeydown="if(event.key==='Enter')doSearch()" />
+      <button onclick="doSearch()"><i class="bi bi-search"></i></button>
     </div>
   </div>
-</nav>
 
-<!-- 404 content -->
-<div class="error-container">
-  <div class="text-center px-3">
-
-    <div class="error-icon-ring">
-      <i class="bi bi-exclamation-circle-fill text-primary" style="font-size: 3rem;"></i>
-    </div>
-
-    <div class="error-code">404</div>
-
-    <h2 class="fw-bold mt-2 mb-2" style="font-family: 'Poppins', sans-serif;">Page Not Found</h2>
-    <p class="text-muted mb-4" style="max-width: 400px; margin: 0 auto 24px;">
-      The page you are looking for does not exist or has been moved. Let's get you back on track.
-    </p>
-
-    <!-- Primary CTA -->
-    <a href="index.html" class="btn btn-primary btn-lg px-5 rounded-pill mb-4">
-      <i class="bi bi-house-fill me-2"></i>Go to Home
-    </a>
-
-    <!-- Quick links -->
-    <p class="text-muted small mb-3">Or go directly to:</p>
-    <div class="quick-links d-flex flex-wrap justify-content-center gap-2">
-      <a href="index.html"><i class="bi bi-person-plus"></i>Candidate Registration</a>
-      <a href="hr.html"><i class="bi bi-briefcase"></i>HR Portal</a>
-      <a href="match.html"><i class="bi bi-diagram-3"></i>Job Matching</a>
-      <a href="dashboard.html"><i class="bi bi-bar-chart"></i>Dashboard</a>
-    </div>
-
+  <div class="links">
+    <a href="index.html#candidates">Candidates</a>
+    <a href="index.html#hr">HR Portal</a>
+    <a href="index.html#match">Match Engine</a>
+    <a href="index.html#dashboard">Dashboard</a>
+    <a href="landing.html#pricing">Pricing</a>
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="script.js"></script>
+<script>
+  function doSearch() {
+    const q = document.getElementById('searchInput').value.trim();
+    if (q) window.location.href = 'index.html';
+  }
+</script>
+
 </body>
 </html>

@@ -1,172 +1,1547 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SmartHire | HR Job Matching Platform</title>
+  <meta name="description" content="SmartHire — Skill-based candidate matching. Phase 2+3+4 complete." />
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-  <title>SmartHire | Candidate Registration</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@600;700&display=swap" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-  <link href="style.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800;900&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet" />
+
   <script src="https://cdn.tailwindcss.com"></script>
-<script>
-  tailwind.config = {
-    darkMode: 'class',
-    corePlugins: { preflight: false },
-    theme: {
-      extend: {
-        colors: {
-          brand: { 50:'#eff6ff', 100:'#dbeafe', 500:'#3b82f6', 600:'#2563eb', 700:'#1d4ed8' },
-          surface: { DEFAULT:'#ffffff', dark:'#1e1e35' }
-        },
-        fontFamily: {
-          sans: ['Inter','Segoe UI','Arial','sans-serif'],
-          heading: ['Poppins','Segoe UI','Arial','sans-serif']
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans:    ['Inter',  'system-ui', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            brand: { 50:'#eef2ff',100:'#e0e7ff',400:'#818cf8',500:'#6366f1',600:'#4f46e5',700:'#4338ca' },
+          },
+          animation: {
+            'slide-up': 'slideUp 0.5s ease-out',
+            'fade-in': 'fadeIn 0.4s ease-out',
+            'score-pop': 'scorePop 0.6s cubic-bezier(0.34,1.56,0.64,1)',
+            'bar-grow': 'barGrow 1s ease-out',
+            'shimmer': 'shimmer 1.5s infinite linear',
+          }
         }
       }
     }
-  }
-</script>
-  <script src="https://unpkg.com/typescript@5.4.5/lib/typescript.js"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  </script>
+
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+  <!-- React 18 + Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    :root {
+      --brand: #6366f1; --brand-dark: #4f46e5;
+      --surface: #ffffff; --surface-dark: #1e1e35;
+      --bg: #f1f5f9; --bg-dark: #0f0f1a;
+      --text: #0f172a; --text-dark: #e2e8f0;
+      --border: #e2e8f0; --border-dark: #2d2d4e;
+      --muted: #64748b; --muted-dark: #94a3b8;
+    }
+
+    body { margin: 0; font-family: 'Inter', sans-serif; transition: background 0.3s; }
+    .dark body, body.dark-mode { background: var(--bg-dark); color: var(--text-dark); }
+    html.dark { background: var(--bg-dark); }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 3px; }
+
+    /* ── ANIMATIONS ── */
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+    @keyframes scorePop {
+      from { opacity: 0; transform: scale(0.4) rotate(-8deg); }
+      to { opacity: 1; transform: scale(1) rotate(0deg); }
+    }
+    @keyframes barGrow {
+      from { width: 0% !important; }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0; }
+      100% { background-position: 200% 0; }
+    }
+    @keyframes toastSlide {
+      from { opacity: 0; transform: translateX(100%); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes countUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes progressFill {
+      from { transform: scaleX(0); transform-origin: left; }
+      to { transform: scaleX(1); transform-origin: left; }
+    }
+    @keyframes orbitalPulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.4); }
+      50% { box-shadow: 0 0 0 12px rgba(99,102,241,0); }
+    }
+
+    /* ── SKELETON ── */
+    .skeleton {
+      background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 8px;
+    }
+    .dark .skeleton {
+      background: linear-gradient(90deg, #1e2035 25%, #252545 50%, #1e2035 75%);
+      background-size: 200% 100%;
+    }
+
+    /* ── PAGE TRANSITION ── */
+    .page-enter { animation: slideUp 0.4s ease-out; }
+
+    /* ── SCORE CIRCLE ── */
+    .score-circle {
+      width: 56px; height: 56px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 900; font-size: 1rem;
+      animation: scorePop 0.6s cubic-bezier(0.34,1.56,0.64,1);
+      animation: orbitalPulse 3s infinite;
+    }
+
+    /* ── MATCH BAR ── */
+    .match-bar { height: 8px; border-radius: 50px; overflow: hidden; background: rgba(0,0,0,0.07); }
+    .dark .match-bar { background: rgba(255,255,255,0.07); }
+    .match-bar-fill {
+      height: 100%; border-radius: 50px;
+      animation: barGrow 1s ease-out;
+      transition: width 0.5s ease;
+    }
+
+    /* ── TOAST ── */
+    .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+    .toast {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 20px; border-radius: 14px; font-weight: 600; font-size: 0.875rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2); color: #fff; min-width: 280px; max-width: 380px;
+      animation: toastSlide 0.4s cubic-bezier(0.34,1.56,0.64,1);
+    }
+    .toast-icon { font-size: 1.1rem; flex-shrink: 0; }
+    .toast-close { margin-left: auto; cursor: pointer; opacity: 0.7; background: none; border: none; color: #fff; font-size: 1rem; }
+    .toast-progress { position: absolute; bottom: 0; left: 0; height: 3px; border-radius: 0 0 14px 14px; animation: progressFill 3.2s linear reverse; }
+
+    /* ── NAVBAR ── */
+    .sh-navbar {
+      position: sticky; top: 0; z-index: 100;
+      backdrop-filter: blur(20px);
+      border-bottom-width: 1px;
+    }
+
+    /* ── HERO BANNER ── */
+    .page-hero {
+      padding: 36px 24px 32px;
+      background: linear-gradient(135deg, var(--brand) 0%, #7c3aed 100%);
+      position: relative; overflow: hidden;
+    }
+    .page-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 80% 50%, rgba(255,255,255,0.08), transparent 60%);
+    }
+    .page-hero h1 { color: #fff; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; font-size: 1.7rem; margin: 0 0 6px; position: relative; }
+    .page-hero p { color: rgba(255,255,255,0.7); font-size: 0.9rem; margin: 0; position: relative; }
+
+    /* ── STAT CARD ── */
+    .stat-card { border-radius: 20px; overflow: hidden; transition: transform 0.3s, box-shadow 0.3s; }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(99,102,241,0.15); }
+
+    /* ── FORM INPUT ── */
+    .sh-input {
+      width: 100%; padding: 11px 16px; border-radius: 12px; font-size: 0.875rem;
+      outline: none; transition: border-color 0.2s, box-shadow 0.2s;
+      border: 1.5px solid;
+    }
+    .sh-input:focus { box-shadow: 0 0 0 3px rgba(99,102,241,0.15); }
+
+    /* ── SKILL TAG ── */
+    .skill-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 4px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600;
+      transition: all 0.2s;
+    }
+    .skill-tag .remove-btn { cursor: pointer; opacity: 0.6; transition: opacity 0.2s; }
+    .skill-tag .remove-btn:hover { opacity: 1; }
+
+    /* ── TABLE ── */
+    .sh-table { width: 100%; border-collapse: collapse; }
+    .sh-table th { padding: 10px 16px; text-align: left; font-size: 0.7rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+    .sh-table td { padding: 12px 16px; font-size: 0.875rem; border-top-width: 1px; }
+    .sh-table tr:last-child td { border-bottom: none; }
+
+    /* ── EMPTY STATE ── */
+    .empty-state { padding: 64px 24px; text-align: center; }
+    .empty-icon { font-size: 3.5rem; margin-bottom: 16px; animation: fadeIn 0.5s ease; }
+    .empty-title { font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 1.15rem; margin-bottom: 8px; }
+    .empty-sub { font-size: 0.875rem; opacity: 0.5; max-width: 300px; margin: 0 auto; }
+
+    /* ── CHART CONTAINER ── */
+    .chart-wrap { position: relative; }
+    .chart-wrap canvas { max-height: 260px; }
+
+    /* ── RANK MEDAL ── */
+    .rank-medal { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.8rem; }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      .sh-navbar, .no-print, button, .toast-container { display: none !important; }
+      .page-hero { background: #6366f1 !important; -webkit-print-color-adjust: exact; }
+      body { background: white !important; }
+    }
+
+    /* ── MOBILE ── */
+    @media (max-width: 768px) {
+      .hide-mobile { display: none !important; }
+      .page-hero h1 { font-size: 1.4rem; }
+    }
+
+    /* ── DARK MODE CHART LEGEND ── */
+    .dark canvas { filter: none; }
+  </style>
 </head>
 <body>
+  <div id="root"></div>
 
-<!-- navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
-  <div class="container">
-    <a class="navbar-brand fw-bold fs-4" href="landing.html">
-      <i class="bi bi-people-fill text-primary me-2"></i>SmartHire
-    </a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
-      <span class="navbar-toggler-icon"></span>
-    </button>
+  <script type="text/babel">
+// ═══════════════════════════════════════════════════════
+//  SmartHire v2 — Phase 2 + 3 + 4 (Frontend Complete)
+//  React 18 · Tailwind · Chart.js · CSS Animations
+// ═══════════════════════════════════════════════════════
 
-    <div class="collapse navbar-collapse" id="navMenu">
-      
-<ul class="navbar-nav ms-auto">
-  <li class="nav-item"><a class="nav-link active" href="index.html"><i class="bi bi-person-plus me-1"></i>Candidate</a></li>
-  <li class="nav-item"><a class="nav-link" href="hr.html"><i class="bi bi-briefcase me-1"></i>HR Portal</a></li>
-  <li class="nav-item"><a class="nav-link" href="match.html"><i class="bi bi-diagram-3 me-1"></i>Match</a></li>
-  <li class="nav-item"><a class="nav-link" href="dashboard.html"><i class="bi bi-bar-chart me-1"></i>Dashboard</a></li>
-  <li class="nav-item"><a class="nav-link" href="about.html"><i class="bi bi-info-circle me-1"></i>About</a></li>
-  <li class="nav-item ms-2 d-flex align-items-center">
-    <div class="form-check form-switch mb-0">
-      <input class="form-check-input" type="checkbox" id="darkToggle" role="switch">
-      <label class="form-check-label text-white" for="darkToggle">Dark</label>
-    </div>
-  </li>
-</ul>
-    </div>
-  </div>
-</nav>
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
 
+// ─── STORAGE ────────────────────────────────────────────
+const Storage = {
+  get: (k, d = '[]') => { try { return JSON.parse(localStorage.getItem(k) || d); } catch { return JSON.parse(d); } },
+  set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} },
+  getCandidates: () => Storage.get('sh_candidates'),
+  saveCandidates: (v) => Storage.set('sh_candidates', v),
+  getJobs: () => Storage.get('sh_jobs'),
+  saveJobs: (v) => Storage.set('sh_jobs', v),
+  getDark: () => Storage.get('sh_dark', 'false'),
+  setDark: (v) => Storage.set('sh_dark', v),
+};
 
-<!-- hero -->
-<div class="hero-section text-center text-white py-5">
-  <div class="container">
-    <h1 class="display-5 fw-bold"><i class="bi bi-person-check-fill me-2"></i>Candidate Registration</h1>
+// ─── MATCH ENGINE ───────────────────────────────────────
+function runMatch(job, candidates) {
+  const jobSkills = job.skills.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+  return candidates
+    .map(c => {
+      const cSkills = c.skills.toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+      const matched = jobSkills.filter(s => cSkills.includes(s));
+      const missing = jobSkills.filter(s => !cSkills.includes(s));
+      const skillScore = jobSkills.length > 0 ? (matched.length / jobSkills.length) * 70 : 0;
+      const cExp = parseFloat(c.experience || '0');
+      const rExp = parseFloat(job.exp || '0');
+      const expScore = rExp === 0 ? 20 : cExp >= rExp ? 20 : Math.round((cExp / rExp) * 20);
+      const eduKw = ['bscs','bba','bse','bs','ms','mba','phd','bachelor','master','bsc'];
+      const eduScore = eduKw.some(k => c.education.toLowerCase().includes(k)) ? 10 : 5;
+      const score = Math.min(100, Math.round(skillScore + expScore + eduScore));
+      return { candidate: c, score, matched, missing };
+    })
+    .filter(r => r.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20)
+    .map((r, i) => ({ ...r, rank: i + 1 }));
+}
 
-    <p class="lead opacity-75">Register your profile and get matched with the perfect job opportunity</p>
-  </div>
-</div>
+// ─── HOOK: useToast ─────────────────────────────────────
+function useToast() {
+  const [toasts, setToasts] = useState([]);
+  const show = useCallback((msg, type = 'success') => {
+    const id = Date.now();
+    setToasts(prev => [...prev, { id, msg, type }]);
+    setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3500);
+  }, []);
+  const remove = useCallback((id) => setToasts(prev => prev.filter(t => t.id !== id)), []);
+  return { toasts, show, remove };
+}
 
-
-<!-- Toast -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index:9999">
-  <div id="toast" class="toast align-items-center text-white border-0" role="alert">
-    <div class="d-flex">
-      <div class="toast-body fw-semibold" id="toastMsg">Success!</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
-    </div>
-  </div>
-</div>
-
-<div class="container py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-7">
-      <div class="card shadow border-0">
-        <div class="card-header bg-primary text-white py-3">
-          
-          <h5 class="mb-0"><i class="bi bi-person-lines-fill me-2"></i>Register Your Profile</h5>
+// ─── COMPONENT: ToastContainer ──────────────────────────
+function ToastContainer({ toasts, remove }) {
+  const colors = { success:'bg-emerald-600', danger:'bg-red-600', warning:'bg-amber-500', info:'bg-brand-600' };
+  const icons  = { success:'✓', danger:'✕', warning:'⚠', info:'ℹ' };
+  return (
+    <div className="toast-container">
+      {toasts.map(t => (
+        <div key={t.id} className={`toast ${colors[t.type] || 'bg-brand-600'} relative`}>
+          <span className="toast-icon">{icons[t.type]}</span>
+          <span className="flex-1">{t.msg}</span>
+          <button className="toast-close" onClick={() => remove(t.id)}>✕</button>
+          <div className={`toast-progress ${colors[t.type] || 'bg-brand-600'} opacity-30`} style={{width:'100%'}} />
         </div>
-        <div class="card-body p-4">
-          <form id="candidateForm" novalidate>
+      ))}
+    </div>
+  );
+}
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Full Name</label>
-              <div class="input-group">
-                   <span class="input-group-text"><i class="bi bi-person"></i></span>
-                <input type="text" class="form-control" id="name" placeholder="Enter your full name" required>
+// ─── COMPONENT: SkeletonLoader ──────────────────────────
+function SkeletonLoader({ rows = 4 }) {
+  return (
+    <div className="p-6 space-y-3">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="flex items-center gap-4">
+          <div className="skeleton w-8 h-8 rounded-full flex-shrink-0" />
+          <div className="flex-1 space-y-2">
+            <div className="skeleton h-3.5 rounded" style={{ width: `${60 + (i * 10) % 30}%` }} />
+            <div className="skeleton h-2.5 rounded" style={{ width: `${40 + (i * 7) % 25}%` }} />
+          </div>
+          <div className="skeleton h-8 w-16 rounded-lg" />
+        </div>
+      ))}
+    </div>
+  );
+}
 
-              </div>
-            </div>
+// ─── COMPONENT: EmptyState ──────────────────────────────
+function EmptyState({ icon, title, sub, action, onAction }) {
+  return (
+    <div className="empty-state">
+      <div className="empty-icon">{icon}</div>
+      <div className="empty-title">{title}</div>
+      <div className="empty-sub">{sub}</div>
+      {action && (
+        <button onClick={onAction} className="mt-5 px-5 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm transition-all">
+          {action}
+        </button>
+      )}
+    </div>
+  );
+}
 
+// ─── COMPONENT: Navbar ───────────────────────────────────
+function Navbar({ page, setPage, dark, setDark }) {
+  const [open, setOpen] = useState(false);
+  const links = [
+    { id: 'candidate', label: 'Candidates', icon: 'bi-person-plus-fill' },
+    { id: 'hr',        label: 'HR Portal',  icon: 'bi-briefcase-fill' },
+    { id: 'match',     label: 'Match',      icon: 'bi-bullseye' },
+    { id: 'dashboard', label: 'Dashboard',  icon: 'bi-bar-chart-fill' },
+    { id: 'about',     label: 'About',      icon: 'bi-info-circle-fill' },
+  ];
+  const nav = dark
+    ? 'bg-gray-900/95 border-gray-700/60 text-white'
+    : 'bg-white/95 border-slate-200 text-slate-900';
+  const link = (active) => active
+    ? 'bg-brand-600 text-white'
+    : dark ? 'text-slate-300 hover:bg-gray-700 hover:text-white' : 'text-slate-600 hover:bg-slate-100 hover:text-slate-900';
 
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Email Address</label>
-              <div class="input-group">
+  return (
+    <nav className={`sh-navbar border-b ${nav}`}>
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between gap-4">
+        <a href="landing.html" className={`font-display font-900 text-xl flex items-center gap-2.5 no-underline ${dark ? 'text-white' : 'text-slate-900'}`}
+           style={{fontFamily:"'Plus Jakarta Sans',sans-serif",fontWeight:800,textDecoration:'none'}}>
+          <div style={{width:34,height:34,background:'linear-gradient(135deg,#6366f1,#8b5cf6)',borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontSize:16}}>⚡</div>
+          SmartHire
+        </a>
 
-                <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                <input type="email" class="form-control" id="email" placeholder="Enter your email" required>
-              </div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Skills <span class="text-muted fw-normal">(comma separated)</span></label>
-               <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-tools"></i></span>
-                <input type="text" class="form-control" id="skills" placeholder="e.g. HTML, CSS, JavaScript, React" required>
-
-              </div>
-                <div class="form-text">Separate each skill with a comma</div>
-                <div id="skills-preview-root"></div>
-            </div>
-
-            <div class="mb-3">
-              <label class="form-label fw-semibold">Education</label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-mortarboard"></i></span>
-                <input type="text" class="form-control" id="education" placeholder="e.g. BSCS, BBA, BSE" required>
-              </div>
-            </div>
-
-            <div class="mb-4">
-              <label class="form-label fw-semibold">Experience <span class="text-muted fw-normal">(years)</span></label>
-              <div class="input-group">
-                <span class="input-group-text"><i class="bi bi-clock-history"></i></span>
-                <input type="number" class="form-control" id="experience" min="0" max="50" placeholder="e.g. 2" required>
-              </div>
-            </div>
-
-            <button type="submit" class="btn btn-primary btn-lg w-100" id="submitBtn">
-              <span id="btnText"><i class="bi bi-check-circle me-2"></i>Register Now</span>
-              <span id="btnSpinner" class="spinner-border spinner-border-sm d-none" role="status"></span>
+        {/* Desktop Nav */}
+        <div className="hidden md:flex items-center gap-1">
+          {links.map(l => (
+            <button key={l.id} onClick={() => setPage(l.id)}
+              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-sm font-semibold transition-all ${link(page === l.id)}`}>
+              <i className={`bi ${l.icon}`} />
+              {l.label}
             </button>
-          </form>
+          ))}
+        </div>
+
+        <div className="flex items-center gap-3">
+          {/* Dark mode */}
+          <button onClick={() => { const d = !dark; setDark(d); Storage.setDark(d); }}
+            className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg transition-all ${dark ? 'bg-gray-700 text-yellow-300 hover:bg-gray-600' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}`}
+            title="Toggle dark mode">
+            <i className={`bi ${dark ? 'bi-sun-fill' : 'bi-moon-stars-fill'}`} />
+          </button>
+
+          {/* Print */}
+          <button onClick={() => window.print()} title="Print"
+            className={`w-10 h-10 rounded-xl hidden md:flex items-center justify-center text-base transition-all no-print ${dark ? 'bg-gray-700 text-slate-300 hover:bg-gray-600' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
+            <i className="bi bi-printer-fill" />
+          </button>
+
+          {/* Landing */}
+          <a href="landing.html"
+            className="hidden md:flex items-center gap-2 px-4 py-2 rounded-xl bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold transition-all no-underline"
+            style={{textDecoration:'none',color:'white'}}>
+            <i className="bi bi-house-fill" /> Home
+          </a>
+
+          {/* Hamburger */}
+          <button onClick={() => setOpen(!open)} className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center text-xl"
+            style={{background:'rgba(99,102,241,0.1)',color:'#6366f1'}}>
+            <i className={`bi ${open ? 'bi-x' : 'bi-list'}`} />
+          </button>
         </div>
       </div>
 
-      <!-- Registered candidates count badge -->
-      <div class="text-center mt-3">
-        <span class="badge bg-secondary fs-6" id="candidateCount">
-          <i class="bi bi-people me-1"></i>Loading...
-        </span>
+      {/* Mobile menu */}
+      {open && (
+        <div className={`md:hidden border-t px-4 py-3 space-y-1 ${dark ? 'border-gray-700 bg-gray-900' : 'border-slate-200 bg-white'}`}>
+          {links.map(l => (
+            <button key={l.id} onClick={() => { setPage(l.id); setOpen(false); }}
+              className={`w-full text-left flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-semibold transition-all ${link(page === l.id)}`}>
+              <i className={`bi ${l.icon}`} />{l.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </nav>
+  );
+}
 
-       </div>
+// ─── COMPONENT: PageHero ────────────────────────────────
+function PageHero({ title, sub, icon, extra }) {
+  return (
+    <div className="page-hero">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1><span style={{marginRight:10}}>{icon}</span>{title}</h1>
+            <p>{sub}</p>
+          </div>
+          {extra}
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  );
+}
 
-<footer class="bg-dark text-white text-center py-3 mt-auto">
-  <small class="opacity-50">© 2026 SmartHire — HTML · Tailwind · TypeScript · JavaScript · React · Bootstrap · Chart.js</small>
-</footer>
+// ─── COMPONENT: SkillTagInput ────────────────────────────
+function SkillTagInput({ value, onChange, dark }) {
+  const [input, setInput] = useState('');
+  const skills = useMemo(() => value ? value.split(',').map(s => s.trim()).filter(Boolean) : [], [value]);
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="script.js"></script>
-<script src="SkillsPreview.js"></script>
+  function addSkill(s) {
+    const trimmed = s.trim();
+    if (!trimmed) return;
+    const newSkills = [...new Set([...skills, trimmed.toLowerCase()])];
+    onChange(newSkills.join(', '));
+    setInput('');
+  }
+  function removeSkill(s) {
+    onChange(skills.filter(sk => sk !== s).join(', '));
+  }
+  function handleKey(e) {
+    if (e.key === 'Enter' || e.key === ',') { e.preventDefault(); addSkill(input); }
+    if (e.key === 'Backspace' && !input && skills.length) removeSkill(skills[skills.length - 1]);
+  }
+
+  const inputCls = dark
+    ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400 focus:border-brand-500'
+    : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400 focus:border-brand-500';
+
+  return (
+    <div className={`min-h-[44px] p-2 rounded-xl border-1.5 transition-all flex flex-wrap gap-1.5 cursor-text ${inputCls}`}
+         onClick={() => document.getElementById('skill-inp')?.focus()}
+         style={{border:'1.5px solid',borderColor:dark?'#374151':'#e2e8f0'}}>
+      {skills.map(s => (
+        <span key={s} className="skill-tag" style={{background:'rgba(99,102,241,0.12)',border:'1px solid rgba(99,102,241,0.25)',color:'#6366f1'}}>
+          {s}
+          <span className="remove-btn" onClick={() => removeSkill(s)}>✕</span>
+        </span>
+      ))}
+      <input id="skill-inp" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKey}
+        onBlur={() => addSkill(input)}
+        placeholder={skills.length === 0 ? 'Type skill, press Enter or comma…' : ''}
+        className="outline-none bg-transparent text-sm min-w-[140px] flex-1"
+        style={{color:'inherit'}} />
+    </div>
+  );
+}
+
+// ─── PAGE: Candidates ───────────────────────────────────
+function CandidatePage({ showToast, dark }) {
+  const [candidates, setCandidates] = useState(() => Storage.getCandidates());
+  const [loading, setLoading] = useState(true);
+  const [form, setForm] = useState({ name:'', email:'', skills:'', experience:'', education:'', company:'' });
+  const [errors, setErrors] = useState({});
+  const [search, setSearch] = useState('');
+  const [expFilter, setExpFilter] = useState('');
+  const [page, setPage] = useState(1);
+  const [sortCol, setSortCol] = useState('name');
+  const [sortDir, setSortDir] = useState('asc');
+  const [selected, setSelected] = useState(new Set());
+  const PER_PAGE = 10;
+
+  useEffect(() => { setTimeout(() => setLoading(false), 600); }, []);
+
+  function validate() {
+    const e = {};
+    if (!form.name.trim()) e.name = 'Name is required';
+    if (!form.email.trim()) e.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'Invalid email format';
+    if (!form.skills.trim()) e.skills = 'At least one skill required';
+    if (!form.experience) e.experience = 'Experience required';
+    else if (isNaN(form.experience) || +form.experience < 0) e.experience = 'Must be a positive number';
+    if (!form.education.trim()) e.education = 'Education is required';
+    return e;
+  }
+
+  function submit(e) {
+    e.preventDefault();
+    const errs = validate();
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    if (candidates.find(c => c.email.toLowerCase() === form.email.toLowerCase())) {
+      setErrors({ email: 'Email already registered' }); return;
+    }
+    const updated = [...candidates, { ...form, id: `c_${Date.now()}`, createdAt: new Date().toISOString() }];
+    setCandidates(updated); Storage.saveCandidates(updated);
+    setForm({ name:'', email:'', skills:'', experience:'', education:'', company:'' });
+    setErrors({});
+    showToast(`${form.name} registered successfully!`, 'success');
+  }
+
+  function deleteCandidate(id) {
+    const updated = candidates.filter(c => c.id !== id);
+    setCandidates(updated); Storage.saveCandidates(updated);
+    showToast('Candidate removed', 'warning');
+  }
+
+  function bulkDelete() {
+    if (!selected.size) return;
+    const updated = candidates.filter(c => !selected.has(c.id));
+    setCandidates(updated); Storage.saveCandidates(updated);
+    setSelected(new Set());
+    showToast(`${selected.size} candidate(s) removed`, 'warning');
+  }
+
+  function exportCSV() {
+    const headers = ['Name','Email','Skills','Experience','Education','Company','Registered'];
+    const rows = filtered.map(c => [c.name,c.email,c.skills,c.experience,c.education,c.company||'',new Date(c.createdAt).toLocaleDateString()]);
+    const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    a.download = `smarthire-candidates-${Date.now()}.csv`;
+    a.click();
+    showToast('CSV downloaded!', 'info');
+  }
+
+  function toggleSort(col) {
+    if (sortCol === col) setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    else { setSortCol(col); setSortDir('asc'); }
+  }
+
+  const filtered = useMemo(() => {
+    let list = candidates.filter(c => {
+      const q = search.toLowerCase();
+      const matchQ = !q || c.name.toLowerCase().includes(q) || c.email.toLowerCase().includes(q) || c.skills.toLowerCase().includes(q);
+      const matchExp = !expFilter || parseFloat(c.experience) >= parseFloat(expFilter);
+      return matchQ && matchExp;
+    });
+    list.sort((a, b) => {
+      let av = a[sortCol] || ''; let bv = b[sortCol] || '';
+      if (sortCol === 'experience') { av = parseFloat(av); bv = parseFloat(bv); }
+      if (av < bv) return sortDir === 'asc' ? -1 : 1;
+      if (av > bv) return sortDir === 'asc' ? 1 : -1;
+      return 0;
+    });
+    return list;
+  }, [candidates, search, expFilter, sortCol, sortDir]);
+
+  const pages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  const paged = filtered.slice((page - 1) * PER_PAGE, page * PER_PAGE);
+
+  const card = dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200';
+  const inp  = dark ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400';
+  const th   = dark ? 'bg-gray-700/70 text-slate-400' : 'bg-slate-50 text-slate-500';
+  const tr   = dark ? 'border-gray-700 hover:bg-gray-700/40' : 'border-slate-100 hover:bg-slate-50';
+  const label= dark ? 'text-slate-300' : 'text-slate-700';
+
+  return (
+    <div className="page-enter">
+      <PageHero title="Register Candidate" sub="Add talent to your pipeline — skill tags, validation, and live preview" icon="👤"
+        extra={<div className="text-right text-white/70 text-sm">
+          <div className="text-2xl font-bold font-display text-white" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{candidates.length}</div>
+          <div>Total Candidates</div>
+        </div>}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-[420px_1fr] gap-6">
+
+        {/* FORM */}
+        <div className={`rounded-2xl border shadow-sm p-6 h-fit ${card}`}>
+          <h2 className={`font-display font-bold text-base mb-5 ${dark ? 'text-white' : 'text-slate-800'}`}
+              style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+            New Candidate
+          </h2>
+          <form onSubmit={submit} className="space-y-4">
+            {[['name','Full Name','person-fill','text'],['email','Email Address','envelope-fill','email'],['experience','Years of Experience','clock-fill','number'],['education','Education (e.g. BSCS, Air University)','mortarboard-fill','text'],['company','Current / Last Company (optional)','building-fill','text']].map(([fld, ph, ic, type]) => (
+              <div key={fld}>
+                <label className={`block text-xs font-semibold mb-1.5 ${label}`}>
+                  <i className={`bi bi-${ic} mr-1.5`} />{ph}
+                </label>
+                <input type={type} placeholder={ph} value={form[fld]}
+                  onChange={e => { setForm(f => ({...f,[fld]:e.target.value})); setErrors(er => ({...er,[fld]:''})); }}
+                  className={`sh-input ${inp} ${errors[fld] ? 'border-red-500' : ''}`}
+                  style={{borderColor: errors[fld] ? '#ef4444' : dark ? '#374151' : '#e2e8f0'}}
+                  min={type==='number' ? 0 : undefined} step={type==='number' ? '0.5' : undefined} />
+                {errors[fld] && <p className="text-red-500 text-xs mt-1">{errors[fld]}</p>}
+              </div>
+            ))}
+
+            <div>
+              <label className={`block text-xs font-semibold mb-1.5 ${label}`}>
+                <i className="bi bi-tags-fill mr-1.5" />Skills (Enter or comma to add)
+              </label>
+              <SkillTagInput value={form.skills} onChange={v => { setForm(f => ({...f,skills:v})); setErrors(e => ({...e,skills:''})); }} dark={dark} />
+              {errors.skills && <p className="text-red-500 text-xs mt-1">{errors.skills}</p>}
+            </div>
+
+            <button type="submit"
+              className="w-full py-3 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm transition-all flex items-center justify-center gap-2"
+              style={{background:'#6366f1'}}>
+              <i className="bi bi-person-plus-fill" />Register Candidate
+            </button>
+          </form>
+        </div>
+
+        {/* TABLE */}
+        <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+          {/* Toolbar */}
+          <div className={`flex flex-wrap gap-3 p-4 border-b ${dark ? 'border-gray-700' : 'border-slate-100'}`}>
+            <div className="relative flex-1 min-w-[200px]">
+              <i className="bi bi-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm" />
+              <input value={search} onChange={e => { setSearch(e.target.value); setPage(1); }}
+                placeholder="Search name, email, skill…"
+                className={`sh-input pl-9 ${inp}`}
+                style={{border:'1.5px solid',borderColor:dark?'#374151':'#e2e8f0'}} />
+            </div>
+            <input type="number" value={expFilter} onChange={e => { setExpFilter(e.target.value); setPage(1); }}
+              placeholder="Min exp (yr)" min="0"
+              className={`sh-input w-36 ${inp}`}
+              style={{border:'1.5px solid',borderColor:dark?'#374151':'#e2e8f0'}} />
+            {selected.size > 0 && (
+              <button onClick={bulkDelete} className="px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-sm font-semibold transition-all flex items-center gap-2 no-print">
+                <i className="bi bi-trash3-fill" />Delete {selected.size}
+              </button>
+            )}
+            <button onClick={exportCSV} className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-all flex items-center gap-2 no-print">
+              <i className="bi bi-download" />CSV
+            </button>
+          </div>
+
+          {loading ? <SkeletonLoader rows={5} /> : filtered.length === 0 ? (
+            <EmptyState icon="🎯" title="No candidates yet" sub="Register the first candidate using the form on the left."
+              action="Clear filters" onAction={() => { setSearch(''); setExpFilter(''); }} />
+          ) : (
+            <>
+              <div className="overflow-x-auto">
+                <table className="sh-table">
+                  <thead>
+                    <tr className={th}>
+                      <th className="pl-4">
+                        <input type="checkbox" className="rounded"
+                          checked={paged.length > 0 && paged.every(c => selected.has(c.id))}
+                          onChange={e => setSelected(e.target.checked ? new Set([...selected,...paged.map(c=>c.id)]) : new Set([...selected].filter(id=>!paged.find(c=>c.id===id))))} />
+                      </th>
+                      {[['name','Candidate'],['skills','Skills'],['experience','Exp'],['education','Education'],['']].map(([col,lbl]) => (
+                        <th key={col} onClick={() => col && toggleSort(col)}
+                          className={col ? 'cursor-pointer select-none' : ''}>
+                          {lbl}
+                          {col === sortCol && <i className={`bi bi-chevron-${sortDir==='asc'?'up':'down'} ml-1 text-brand-500`} />}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paged.map((c, idx) => (
+                      <tr key={c.id} className={`border-t transition-colors ${tr}`} style={{animationDelay:`${idx*30}ms`}}>
+                        <td className="pl-4">
+                          <input type="checkbox" className="rounded" checked={selected.has(c.id)}
+                            onChange={e => {
+                              const s = new Set(selected);
+                              e.target.checked ? s.add(c.id) : s.delete(c.id);
+                              setSelected(s);
+                            }} />
+                        </td>
+                        <td>
+                          <div className="flex items-center gap-3">
+                            <div style={{width:36,height:36,borderRadius:'50%',background:'linear-gradient(135deg,#6366f1,#8b5cf6)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:700,fontSize:'0.9rem',flexShrink:0}}>
+                              {c.name[0]?.toUpperCase()}
+                            </div>
+                            <div>
+                              <div className={`font-semibold text-sm ${dark ? 'text-white' : 'text-slate-900'}`}>{c.name}</div>
+                              <div className={`text-xs ${dark ? 'text-slate-400' : 'text-slate-500'}`}>{c.email}</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div className="flex flex-wrap gap-1">
+                            {c.skills.split(',').slice(0,3).map(s => s.trim()).filter(Boolean).map(s => (
+                              <span key={s} className="skill-tag" style={{background:'rgba(99,102,241,0.1)',border:'1px solid rgba(99,102,241,0.2)',color:'#6366f1',fontSize:'0.68rem'}}>{s}</span>
+                            ))}
+                            {c.skills.split(',').length > 3 && (
+                              <span className={`text-xs ${dark?'text-slate-400':'text-slate-400'}`}>+{c.skills.split(',').length-3}</span>
+                            )}
+                          </div>
+                        </td>
+                        <td className={`text-sm font-semibold ${dark?'text-slate-300':'text-slate-700'}`}>{c.experience}yr</td>
+                        <td className={`text-xs max-w-[160px] truncate ${dark?'text-slate-400':'text-slate-500'}`}>{c.education}</td>
+                        <td>
+                          <button onClick={() => deleteCandidate(c.id)}
+                            className="w-8 h-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-50 transition-all no-print">
+                            <i className="bi bi-trash3-fill text-xs" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Pagination */}
+              <div className={`flex items-center justify-between px-4 py-3 border-t text-sm no-print ${dark ? 'border-gray-700 text-slate-400' : 'border-slate-100 text-slate-500'}`}>
+                <span>{filtered.length} candidate{filtered.length !== 1 ? 's' : ''} · page {page}/{pages}</span>
+                <div className="flex gap-2">
+                  <button disabled={page === 1} onClick={() => setPage(p => p - 1)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-30 bg-brand-600 text-white hover:bg-brand-700 transition-all"
+                    style={{background:'#6366f1'}}>← Prev</button>
+                  <button disabled={page === pages} onClick={() => setPage(p => p + 1)}
+                    className="px-3 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-30 bg-brand-600 text-white hover:bg-brand-700 transition-all"
+                    style={{background:'#6366f1'}}>Next →</button>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PAGE: HR Portal ────────────────────────────────────
+function HRPage({ showToast, dark }) {
+  const [candidates, setCandidates] = useState(() => Storage.getCandidates());
+  const [jobs, setJobs] = useState(() => Storage.getJobs());
+  const [form, setForm] = useState({ title:'', skills:'', exp:'', type:'Full-time' });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('jobs');
+
+  useEffect(() => { setTimeout(() => setLoading(false), 500); }, []);
+
+  function submitJob(e) {
+    e.preventDefault();
+    const errs = {};
+    if (!form.title.trim()) errs.title = 'Job title required';
+    if (!form.skills.trim()) errs.skills = 'Required skills needed';
+    if (Object.keys(errs).length) { setErrors(errs); return; }
+    const updated = [...jobs, { ...form, id: `j_${Date.now()}`, createdAt: new Date().toISOString() }];
+    setJobs(updated); Storage.saveJobs(updated);
+    setForm({ title:'', skills:'', exp:'', type:'Full-time' });
+    setErrors({});
+    showToast(`"${form.title}" posted!`, 'success');
+  }
+
+  function deleteJob(id) {
+    const updated = jobs.filter(j => j.id !== id);
+    setJobs(updated); Storage.saveJobs(updated);
+    showToast('Job removed', 'warning');
+  }
+
+  function deleteCandidate(id) {
+    const updated = candidates.filter(c => c.id !== id);
+    setCandidates(updated); Storage.saveCandidates(updated);
+    showToast('Candidate removed', 'warning');
+  }
+
+  const card = dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200';
+  const inp  = dark ? 'bg-gray-700 border-gray-600 text-white placeholder-gray-400' : 'bg-white border-slate-200 text-slate-900 placeholder-slate-400';
+  const th   = dark ? 'bg-gray-700/70 text-slate-400' : 'bg-slate-50 text-slate-500';
+  const tr   = dark ? 'border-gray-700 hover:bg-gray-700/40' : 'border-slate-100 hover:bg-slate-50';
+  const label= dark ? 'text-slate-300' : 'text-slate-700';
+
+  return (
+    <div className="page-enter">
+      <PageHero title="HR Portal" sub="Post jobs and manage your full hiring pipeline" icon="💼"
+        extra={<div className="flex gap-4 text-white/80 text-sm">
+          <div className="text-center">
+            <div className="text-2xl font-bold text-white" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{jobs.length}</div>
+            <div>Jobs</div>
+          </div>
+          <div className="text-center">
+            <div className="text-2xl font-bold text-white" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{candidates.length}</div>
+            <div>Candidates</div>
+          </div>
+        </div>}
+      />
+
+      <div className="max-w-7xl mx-auto px-4 py-8 grid lg:grid-cols-[400px_1fr] gap-6">
+
+        {/* FORM */}
+        <div className={`rounded-2xl border shadow-sm p-6 h-fit ${card}`}>
+          <h2 className={`font-bold text-base mb-5 ${dark ? 'text-white' : 'text-slate-800'}`} style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+            Post a Job
+          </h2>
+          <form onSubmit={submitJob} className="space-y-4">
+            <div>
+              <label className={`block text-xs font-semibold mb-1.5 ${label}`}><i className="bi bi-briefcase-fill mr-1.5" />Job Title</label>
+              <input value={form.title} onChange={e => { setForm(f=>({...f,title:e.target.value})); setErrors(er=>({...er,title:''})); }}
+                placeholder="e.g. Senior React Developer"
+                className={`sh-input ${inp}`}
+                style={{border:'1.5px solid',borderColor:errors.title?'#ef4444':dark?'#374151':'#e2e8f0'}} />
+              {errors.title && <p className="text-red-500 text-xs mt-1">{errors.title}</p>}
+            </div>
+
+            <div>
+              <label className={`block text-xs font-semibold mb-1.5 ${label}`}><i className="bi bi-tags-fill mr-1.5" />Required Skills</label>
+              <SkillTagInput value={form.skills} onChange={v => { setForm(f=>({...f,skills:v})); setErrors(e=>({...e,skills:''})); }} dark={dark} />
+              {errors.skills && <p className="text-red-500 text-xs mt-1">{errors.skills}</p>}
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={`block text-xs font-semibold mb-1.5 ${label}`}><i className="bi bi-clock-fill mr-1.5" />Min Experience (yr)</label>
+                <input type="number" value={form.exp} onChange={e => setForm(f=>({...f,exp:e.target.value}))}
+                  placeholder="0" min="0" step="0.5"
+                  className={`sh-input ${inp}`}
+                  style={{border:'1.5px solid',borderColor:dark?'#374151':'#e2e8f0'}} />
+              </div>
+              <div>
+                <label className={`block text-xs font-semibold mb-1.5 ${label}`}><i className="bi bi-grid-3x3-gap-fill mr-1.5" />Job Type</label>
+                <select value={form.type} onChange={e => setForm(f=>({...f,type:e.target.value}))}
+                  className={`sh-input ${inp}`}
+                  style={{border:'1.5px solid',borderColor:dark?'#374151':'#e2e8f0'}}>
+                  {['Full-time','Part-time','Contract','Remote','Internship'].map(t => <option key={t}>{t}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <button type="submit"
+              className="w-full py-3 rounded-xl text-white font-bold text-sm transition-all flex items-center justify-center gap-2"
+              style={{background:'linear-gradient(135deg,#6366f1,#8b5cf6)'}}>
+              <i className="bi bi-plus-circle-fill" />Post Job
+            </button>
+          </form>
+        </div>
+
+        {/* TABS */}
+        <div className="space-y-4">
+          <div className={`flex rounded-xl border p-1 ${dark ? 'bg-gray-800 border-gray-700' : 'bg-slate-50 border-slate-200'}`} style={{width:'fit-content'}}>
+            {[['jobs',`Jobs (${jobs.length})`,'briefcase-fill'],['candidates',`Candidates (${candidates.length})`,'people-fill']].map(([t,l,ic]) => (
+              <button key={t} onClick={() => setActiveTab(t)}
+                className={`flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold transition-all ${activeTab===t ? 'bg-brand-600 text-white shadow-sm' : (dark?'text-slate-400 hover:text-white':'text-slate-500 hover:text-slate-800')}`}
+                style={activeTab===t?{background:'#6366f1'}:{}}>
+                <i className={`bi bi-${ic}`} />{l}
+              </button>
+            ))}
+          </div>
+
+          <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+            {loading ? <SkeletonLoader rows={4} /> :
+              activeTab === 'jobs' ? (
+                jobs.length === 0 ? (
+                  <EmptyState icon="💼" title="No jobs posted yet" sub="Post your first job using the form on the left." />
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="sh-table">
+                      <thead><tr className={th}><th>Job Title</th><th>Required Skills</th><th>Type</th><th>Min Exp</th><th className="no-print">Actions</th></tr></thead>
+                      <tbody>
+                        {jobs.map(j => (
+                          <tr key={j.id} className={`border-t transition-colors ${tr}`}>
+                            <td className={`font-semibold ${dark?'text-white':'text-slate-900'}`}>{j.title}</td>
+                            <td>
+                              <div className="flex flex-wrap gap-1">
+                                {j.skills.split(',').slice(0,4).map(s => s.trim()).filter(Boolean).map(s => (
+                                  <span key={s} className="skill-tag" style={{background:'rgba(99,102,241,0.1)',border:'1px solid rgba(99,102,241,0.2)',color:'#6366f1',fontSize:'0.68rem'}}>{s}</span>
+                                ))}
+                              </div>
+                            </td>
+                            <td><span className={`px-2 py-1 rounded-lg text-xs font-semibold ${dark?'bg-indigo-900/60 text-indigo-300':'bg-indigo-50 text-indigo-700'}`}>{j.type}</span></td>
+                            <td className={`text-sm ${dark?'text-slate-300':'text-slate-600'}`}>{j.exp || '0'}yr</td>
+                            <td className="no-print">
+                              <button onClick={() => deleteJob(j.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-50 transition-all">
+                                <i className="bi bi-trash3-fill text-xs" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              ) : (
+                candidates.length === 0 ? (
+                  <EmptyState icon="👥" title="No candidates registered" sub="Switch to the Candidates tab to add talent to your pipeline." />
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="sh-table">
+                      <thead><tr className={th}><th>Candidate</th><th>Skills</th><th>Experience</th><th>Education</th><th className="no-print">Actions</th></tr></thead>
+                      <tbody>
+                        {candidates.map(c => (
+                          <tr key={c.id} className={`border-t transition-colors ${tr}`}>
+                            <td>
+                              <div className="font-semibold text-sm">{c.name}</div>
+                              <div className={`text-xs ${dark?'text-slate-400':'text-slate-500'}`}>{c.email}</div>
+                            </td>
+                            <td className={`text-xs max-w-[160px] truncate ${dark?'text-slate-300':'text-slate-600'}`}>{c.skills.split(',').slice(0,3).join(', ')}</td>
+                            <td className={`text-sm ${dark?'text-slate-300':'text-slate-700'}`}>{c.experience}yr</td>
+                            <td className={`text-xs max-w-[150px] truncate ${dark?'text-slate-400':'text-slate-500'}`}>{c.education}</td>
+                            <td className="no-print">
+                              <button onClick={() => deleteCandidate(c.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-red-500 hover:bg-red-50 transition-all">
+                                <i className="bi bi-trash3-fill text-xs" />
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )
+              )
+            }
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── PAGE: Match ──────────────────────────────────────────
+function MatchPage({ showToast, dark }) {
+  const [jobs] = useState(() => Storage.getJobs());
+  const [selIdx, setSel] = useState('');
+  const [results, setResults] = useState([]);
+  const [ran, setRan] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  function doMatch() {
+    if (selIdx === '') { showToast('Select a job first!', 'warning'); return; }
+    const candidates = Storage.getCandidates();
+    if (!candidates.length) { showToast('No candidates registered yet.', 'warning'); return; }
+    setLoading(true);
+    setTimeout(() => {
+      const job = jobs[parseInt(selIdx)];
+      const r = runMatch(job, candidates);
+      setResults(r); setRan(true); setLoading(false);
+      if (r.length === 0) showToast('No candidates matched this job.', 'warning');
+      else showToast(`${r.length} match${r.length!==1?'es':''} found!`, 'success');
+    }, 600);
+  }
+
+  function exportPDF() { window.print(); }
+
+  function exportMatchCSV() {
+    if (!results.length) return;
+    const headers = ['Rank','Name','Email','Score','Matched Skills','Missing Skills','Experience'];
+    const rows = results.map(r => [r.rank,r.candidate.name,r.candidate.email,r.score+'%',r.matched.join('; '),r.missing.join('; '),r.candidate.experience+'yr']);
+    const csv = [headers,...rows].map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+    a.download = `smarthire-matches-${Date.now()}.csv`;
+    a.click();
+    showToast('Match results exported!', 'info');
+  }
+
+  const scoreColor = (s) => s>=70?'#10b981':s>=40?'#f59e0b':'#ef4444';
+  const scoreBg    = (s) => s>=70?'linear-gradient(135deg,#10b981,#059669)':s>=40?'linear-gradient(135deg,#f59e0b,#d97706)':'linear-gradient(135deg,#ef4444,#dc2626)';
+  const rankMedal  = (r) => r===1?'🥇':r===2?'🥈':r===3?'🥉':null;
+  const avgScore   = results.length ? Math.round(results.reduce((a,r)=>a+r.score,0)/results.length) : 0;
+
+  const card = dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200';
+  const inp  = dark ? 'bg-gray-700 border-gray-600 text-white' : 'bg-white border-slate-200 text-slate-900';
+  const th   = dark ? 'bg-gray-700/70 text-slate-400' : 'bg-slate-50 text-slate-500';
+  const tr   = dark ? 'border-gray-700' : 'border-slate-100';
+
+  return (
+    <div className="page-enter">
+      <PageHero title="Match Candidates" sub="Run the scoring algorithm to find the best fits for your job" icon="🎯" />
+
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-6">
+
+        {/* JOB SELECTOR */}
+        <div className={`rounded-2xl border shadow-sm p-6 ${card}`}>
+          <h2 className={`font-bold text-sm mb-4 ${dark?'text-white':'text-slate-800'}`} style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>Select Job to Match</h2>
+          <div className="flex flex-wrap gap-3 items-center">
+            <select value={selIdx} onChange={e => { setSel(e.target.value); setRan(false); }}
+              className={`sh-input flex-1 min-w-[200px] ${inp}`}
+              style={{border:'1.5px solid',borderColor:dark?'#374151':'#e2e8f0'}}>
+              <option value="">— Choose a posted job —</option>
+              {jobs.map((j,i) => <option key={j.id} value={String(i)}>{j.title} · {j.type} · {j.exp||0}yr exp required</option>)}
+            </select>
+            <button onClick={doMatch} disabled={loading}
+              className="flex items-center gap-2 px-6 py-3 rounded-xl text-white font-bold text-sm transition-all"
+              style={{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',opacity:loading?0.7:1}}>
+              {loading ? <><i className="bi bi-arrow-repeat animate-spin" />Matching…</> : <><i className="bi bi-play-fill" />Run Match</>}
+            </button>
+            {ran && results.length > 0 && (
+              <>
+                <button onClick={exportMatchCSV} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-all no-print">
+                  <i className="bi bi-download" />CSV
+                </button>
+                <button onClick={exportPDF} className="flex items-center gap-2 px-4 py-3 rounded-xl bg-slate-600 hover:bg-slate-700 text-white text-sm font-semibold transition-all no-print">
+                  <i className="bi bi-printer-fill" />Print PDF
+                </button>
+              </>
+            )}
+          </div>
+          {jobs.length === 0 && <p className="mt-3 text-sm text-amber-600 flex items-center gap-2"><i className="bi bi-exclamation-triangle-fill" />No jobs posted — go to HR Portal first.</p>}
+        </div>
+
+        {/* LOADING STATE */}
+        {loading && (
+          <div className={`rounded-2xl border shadow-sm ${card}`}>
+            <SkeletonLoader rows={5} />
+          </div>
+        )}
+
+        {/* RESULTS SUMMARY */}
+        {ran && !loading && results.length > 0 && (
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4" style={{animation:'slideUp 0.5s ease-out'}}>
+            {[
+              { label:'Candidates Matched', val:results.length, icon:'👥', grad:'from-brand-500 to-brand-700' },
+              { label:'Average Score',      val:`${avgScore}%`, icon:'📊', grad:'from-indigo-500 to-purple-600' },
+              { label:'Top Match Score',    val:`${results[0]?.score}%`, icon:'🏆', grad:'from-emerald-500 to-teal-600' },
+              { label:'Perfect Matches',    val:results.filter(r=>r.missing.length===0).length, icon:'⭐', grad:'from-amber-500 to-orange-500' },
+            ].map(s => (
+              <div key={s.label} className={`rounded-2xl overflow-hidden border shadow-sm ${card}`}>
+                <div className={`bg-gradient-to-r ${s.grad} p-4 flex items-center justify-between`}>
+                  <span className="text-2xl">{s.icon}</span>
+                  <div className="text-white text-right">
+                    <div className="text-3xl font-bold" style={{fontFamily:"'Plus Jakarta Sans',sans-serif",animation:'countUp 0.6s ease-out'}}>{s.val}</div>
+                  </div>
+                </div>
+                <div className="px-4 py-2"><p className={`text-xs font-semibold uppercase tracking-wide ${dark?'text-slate-400':'text-slate-500'}`}>{s.label}</p></div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* MATCH TABLE */}
+        {ran && !loading && (
+          <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+            {results.length === 0 ? (
+              <EmptyState icon="🤷" title="No candidates matched" sub="Try lowering skill requirements or register more candidates with relevant skills." />
+            ) : (
+              <>
+                <div style={{background:'linear-gradient(135deg,#6366f1,#7c3aed)',padding:'16px 24px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <h3 style={{color:'#fff',fontWeight:700,fontSize:'0.9rem',margin:0}}>
+                    Results for: {jobs[parseInt(selIdx)]?.title}
+                  </h3>
+                  <span style={{color:'rgba(255,255,255,0.7)',fontSize:'0.75rem',background:'rgba(255,255,255,0.15)',padding:'4px 12px',borderRadius:'50px'}}>
+                    {results.length} match{results.length!==1?'es':''}
+                  </span>
+                </div>
+
+                <div className="overflow-x-auto">
+                  <table className="sh-table">
+                    <thead>
+                      <tr className={th}>
+                        <th>Rank</th><th>Candidate</th><th>Score</th><th>Match Bar</th><th>Matched Skills</th><th>Missing</th><th>Exp</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {results.map((r, idx) => (
+                        <tr key={r.candidate.id} className={`border-t ${tr}`} style={{animation:`slideUp 0.4s ease-out ${idx*50}ms both`}}>
+                          <td>
+                            <div className="flex items-center gap-1">
+                              {rankMedal(r.rank) ? (
+                                <span style={{fontSize:'1.3rem',lineHeight:1}}>{rankMedal(r.rank)}</span>
+                              ) : (
+                                <span className={`rank-medal ${dark?'bg-gray-700 text-slate-400':'bg-slate-100 text-slate-600'}`}>#{r.rank}</span>
+                              )}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="flex items-center gap-3">
+                              <div style={{width:38,height:38,borderRadius:'50%',background:scoreBg(r.score),display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontWeight:800,fontSize:'0.85rem',flexShrink:0,animation:'scorePop 0.6s cubic-bezier(0.34,1.56,0.64,1)'}}>
+                                {r.score}
+                              </div>
+                              <div>
+                                <div className={`font-semibold text-sm ${dark?'text-white':'text-slate-900'}`}>{r.candidate.name}</div>
+                                <div className={`text-xs ${dark?'text-slate-400':'text-slate-500'}`}>{r.candidate.email}</div>
+                              </div>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold text-white"
+                              style={{background:scoreBg(r.score),animation:'scorePop 0.6s cubic-bezier(0.34,1.56,0.64,1)'}}>
+                              {r.score}%
+                            </span>
+                          </td>
+                          <td style={{minWidth:100}}>
+                            <div className="match-bar">
+                              <div className="match-bar-fill" style={{width:`${r.score}%`,background:scoreBg(r.score)}} />
+                            </div>
+                          </td>
+                          <td>
+                            <div className="flex flex-wrap gap-1">
+                              {r.matched.map(s => (
+                                <span key={s} style={{background:'rgba(16,185,129,0.12)',border:'1px solid rgba(16,185,129,0.25)',color:'#059669',padding:'2px 8px',borderRadius:'50px',fontSize:'0.68rem',fontWeight:600}}>✓ {s}</span>
+                              ))}
+                              {r.matched.length === 0 && <span className={`text-xs ${dark?'text-slate-500':'text-slate-400'}`}>—</span>}
+                            </div>
+                          </td>
+                          <td>
+                            <div className="flex flex-wrap gap-1">
+                              {r.missing.map(s => (
+                                <span key={s} style={{background:'rgba(239,68,68,0.1)',border:'1px solid rgba(239,68,68,0.2)',color:'#dc2626',padding:'2px 8px',borderRadius:'50px',fontSize:'0.68rem',fontWeight:600}}>✕ {s}</span>
+                              ))}
+                              {r.missing.length === 0 && <span style={{color:'#10b981',fontSize:'0.75rem',fontWeight:700}}>✅ All matched</span>}
+                            </div>
+                          </td>
+                          <td className={`text-xs font-semibold ${dark?'text-slate-300':'text-slate-600'}`}>{r.candidate.experience}yr</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── PAGE: Dashboard ─────────────────────────────────────
+function DashboardPage({ dark, showToast }) {
+  const candidates = Storage.getCandidates();
+  const jobs = Storage.getJobs();
+  const [loading, setLoading] = useState(true);
+
+  const doughnutRef = useRef(null);
+  const barRef      = useRef(null);
+  const radarRef    = useRef(null);
+  const polarRef    = useRef(null);
+  const charts      = useRef({});
+
+  useEffect(() => { setTimeout(() => setLoading(false), 700); }, []);
+
+  // Skill frequency
+  const allSkills = candidates.flatMap(c => c.skills.toLowerCase().split(',').map(s=>s.trim()).filter(Boolean));
+  const freq = {};
+  allSkills.forEach(s => { freq[s] = (freq[s]||0)+1; });
+  const top8 = Object.entries(freq).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const uniqueSkills = Object.keys(freq).length;
+  const avgExp = candidates.length > 0
+    ? (candidates.reduce((s,c)=>s+parseFloat(c.experience||0),0)/candidates.length).toFixed(1) : '0';
+
+  // Job type freq
+  const typeCount = {};
+  jobs.forEach(j => { typeCount[j.type]=(typeCount[j.type]||0)+1; });
+
+  // Experience buckets
+  const expBuckets = { '0-1yr':0, '1-3yr':0, '3-5yr':0, '5+yr':0 };
+  candidates.forEach(c => {
+    const e = parseFloat(c.experience||0);
+    if (e<=1) expBuckets['0-1yr']++;
+    else if (e<=3) expBuckets['1-3yr']++;
+    else if (e<=5) expBuckets['3-5yr']++;
+    else expBuckets['5+yr']++;
+  });
+
+  const COLORS = ['#6366f1','#8b5cf6','#a78bfa','#10b981','#34d399','#f59e0b','#ef4444','#3b82f6'];
+  const textColor = dark ? '#94a3b8' : '#64748b';
+  const gridColor = dark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+  function destroyChart(key) {
+    if (charts.current[key]) { try { charts.current[key].destroy(); } catch {} charts.current[key] = null; }
+  }
+
+  useEffect(() => {
+    if (loading) return;
+    const defs = {
+      doughnut: {
+        ref: doughnutRef, type: 'doughnut',
+        data: {
+          labels: Object.keys(typeCount).length ? Object.keys(typeCount) : ['No jobs yet'],
+          datasets: [{ data: Object.keys(typeCount).length ? Object.values(typeCount) : [1], backgroundColor: COLORS, borderWidth: 0, hoverOffset: 6 }]
+        },
+        options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ labels:{ color:textColor, font:{ family:'Inter',size:12 }, padding:16 } }, tooltip:{ backgroundColor:'rgba(15,15,25,0.9)', titleColor:'#fff', bodyColor:textColor, padding:12, cornerRadius:10 } }, animation:{ animateRotate:true, duration:1000 } }
+      },
+      bar: {
+        ref: barRef, type: 'bar',
+        data: {
+          labels: top8.map(([s])=>s) || ['No data'],
+          datasets: [{ label:'Candidates', data: top8.map(([,c])=>c) || [0], backgroundColor: COLORS, borderRadius:8, borderWidth:0 }]
+        },
+        options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'rgba(15,15,25,0.9)', titleColor:'#fff', bodyColor:textColor, padding:12, cornerRadius:10 } }, scales:{ x:{ ticks:{ color:textColor, font:{size:11,family:'Inter'} }, grid:{ color:gridColor } }, y:{ ticks:{ color:textColor, font:{size:11,family:'Inter'} }, grid:{ color:gridColor }, beginAtZero:true } }, animation:{ duration:1000 } }
+      },
+      radar: {
+        ref: radarRef, type: 'radar',
+        data: {
+          labels: top8.slice(0,6).map(([s])=>s) || ['No data'],
+          datasets: [{
+            label:'Frequency', data: top8.slice(0,6).map(([,c])=>c) || [0],
+            backgroundColor:'rgba(99,102,241,0.18)', borderColor:'#6366f1',
+            pointBackgroundColor:'#6366f1', pointRadius:5, borderWidth:2, fill:true
+          }]
+        },
+        options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ display:false }, tooltip:{ backgroundColor:'rgba(15,15,25,0.9)', titleColor:'#fff', bodyColor:textColor, padding:12, cornerRadius:10 } }, scales:{ r:{ ticks:{ color:textColor, backdropColor:'transparent', font:{size:10,family:'Inter'} }, grid:{ color:gridColor }, angleLines:{ color:gridColor }, pointLabels:{ color:textColor, font:{size:11,family:'Inter'} } } }, animation:{ duration:1000 } }
+      },
+      polar: {
+        ref: polarRef, type: 'polarArea',
+        data: {
+          labels: Object.keys(expBuckets),
+          datasets: [{ data: Object.values(expBuckets), backgroundColor: COLORS.slice(0,4).map(c=>c+'cc'), borderWidth:0 }]
+        },
+        options: { responsive:true, maintainAspectRatio:true, plugins:{ legend:{ labels:{ color:textColor, font:{ family:'Inter',size:12 }, padding:16 } }, tooltip:{ backgroundColor:'rgba(15,15,25,0.9)', titleColor:'#fff', bodyColor:textColor, padding:12, cornerRadius:10 } }, scales:{ r:{ ticks:{ color:textColor, backdropColor:'transparent', font:{size:10} }, grid:{ color:gridColor } } }, animation:{ duration:1000 } }
+      }
+    };
+
+    Object.entries(defs).forEach(([key, def]) => {
+      if (!def.ref.current) return;
+      destroyChart(key);
+      charts.current[key] = new Chart(def.ref.current, { type:def.type, data:def.data, options:def.options });
+    });
+
+    return () => Object.keys(defs).forEach(destroyChart);
+  }, [loading, dark]);
+
+  const card = dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200';
+  const sub  = dark ? 'text-slate-400' : 'text-slate-500';
+
+  const stats = [
+    { label:'Candidates',     val:candidates.length, icon:'👥', grad:'from-brand-500 to-brand-700' },
+    { label:'Jobs Posted',    val:jobs.length,        icon:'💼', grad:'from-indigo-500 to-purple-600' },
+    { label:'Avg Experience', val:`${avgExp}yr`,      icon:'⏱',  grad:'from-emerald-500 to-teal-600' },
+    { label:'Unique Skills',  val:uniqueSkills,       icon:'🛠',  grad:'from-amber-500 to-orange-500' },
+  ];
+
+  return (
+    <div className="page-enter">
+      <PageHero title="Analytics Dashboard" sub="Real-time insights from your talent pipeline — powered by Chart.js" icon="📊" />
+
+      <div className="max-w-7xl mx-auto px-4 py-8 space-y-8">
+
+        {/* STAT CARDS */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          {stats.map((s,i) => (
+            <div key={s.label} className={`stat-card border shadow-sm ${card}`} style={{animationDelay:`${i*80}ms`}}>
+              <div className={`bg-gradient-to-r ${s.grad} p-4 flex items-center justify-between`}>
+                <span className="text-2xl">{s.icon}</span>
+                <div className="text-white text-right">
+                  <div className="text-3xl font-bold" style={{fontFamily:"'Plus Jakarta Sans',sans-serif",animation:'countUp 0.8s ease-out'}}>{s.val}</div>
+                </div>
+              </div>
+              <div className="px-4 py-2"><p className={`text-xs font-semibold uppercase tracking-wide ${sub}`}>{s.label}</p></div>
+            </div>
+          ))}
+        </div>
+
+        {loading ? (
+          <div className={`rounded-2xl border shadow-sm ${card}`}><SkeletonLoader rows={6} /></div>
+        ) : (
+          <>
+            {/* CHART.JS — 4 CHARTS */}
+            <div className="grid md:grid-cols-2 gap-6">
+              {/* Doughnut */}
+              <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                <div style={{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',padding:'16px 20px'}}>
+                  <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.875rem',margin:0}}>🍩 Job Type Distribution</h2>
+                </div>
+                <div className="p-6 chart-wrap">
+                  {Object.keys(typeCount).length === 0 ? (
+                    <EmptyState icon="💼" title="No jobs posted" sub="Post jobs to see type distribution." />
+                  ) : <canvas ref={doughnutRef} />}
+                </div>
+              </div>
+
+              {/* Bar */}
+              <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                <div style={{background:'linear-gradient(135deg,#10b981,#059669)',padding:'16px 20px'}}>
+                  <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.875rem',margin:0}}>📊 Top Skills Frequency</h2>
+                </div>
+                <div className="p-6 chart-wrap">
+                  {top8.length === 0 ? (
+                    <EmptyState icon="🛠" title="No skills yet" sub="Register candidates to see skill distribution." />
+                  ) : <canvas ref={barRef} />}
+                </div>
+              </div>
+
+              {/* Radar */}
+              <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                <div style={{background:'linear-gradient(135deg,#f59e0b,#d97706)',padding:'16px 20px'}}>
+                  <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.875rem',margin:0}}>🕸 Skill Radar (Top 6)</h2>
+                </div>
+                <div className="p-6 chart-wrap">
+                  {top8.length === 0 ? (
+                    <EmptyState icon="🛠" title="No skills yet" sub="Register candidates to see radar analysis." />
+                  ) : <canvas ref={radarRef} />}
+                </div>
+              </div>
+
+              {/* Polar */}
+              <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                <div style={{background:'linear-gradient(135deg,#ef4444,#dc2626)',padding:'16px 20px'}}>
+                  <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.875rem',margin:0}}>🎯 Experience Distribution</h2>
+                </div>
+                <div className="p-6 chart-wrap">
+                  {candidates.length === 0 ? (
+                    <EmptyState icon="👥" title="No candidates yet" sub="Register candidates to see experience breakdown." />
+                  ) : <canvas ref={polarRef} />}
+                </div>
+              </div>
+            </div>
+
+            {/* Skill bar chart (horizontal) */}
+            {top8.length > 0 && (
+              <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                <div style={{background:'linear-gradient(135deg,#6366f1,#7c3aed)',padding:'16px 20px'}}>
+                  <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.875rem',margin:0}}>🛠 Top Skills Leaderboard</h2>
+                </div>
+                <div className="p-6 space-y-3">
+                  {top8.map(([skill, count], idx) => {
+                    const pct = Math.round((count / top8[0][1]) * 100);
+                    return (
+                      <div key={skill} className="flex items-center gap-3">
+                        <div style={{width:28,height:28,borderRadius:8,background:COLORS[idx]+'22',border:`1px solid ${COLORS[idx]}44`,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'0.7rem',fontWeight:800,color:COLORS[idx],flexShrink:0}}>{idx+1}</div>
+                        <div className={`w-28 text-xs font-semibold capitalize truncate ${dark?'text-slate-300':'text-slate-700'}`}>{skill}</div>
+                        <div className="flex-1" style={{height:28,background:dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)',borderRadius:8,overflow:'hidden'}}>
+                          <div style={{width:`${pct}%`,height:'100%',background:`linear-gradient(90deg,${COLORS[idx]},${COLORS[idx]}aa)`,borderRadius:8,display:'flex',alignItems:'center',justifyContent:'flex-end',paddingRight:8,animation:'barGrow 1s ease-out',minWidth:32}}>
+                            <span style={{color:'#fff',fontSize:'0.7rem',fontWeight:800}}>{count}</span>
+                          </div>
+                        </div>
+                        <div className={`w-24 text-xs text-right ${dark?'text-slate-400':'text-slate-500'}`}>{count} candidate{count!==1?'s':''}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Recent tables */}
+            <div className="grid md:grid-cols-2 gap-6">
+              <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                <div style={{background:'linear-gradient(135deg,#10b981,#059669)',padding:'16px 20px'}}>
+                  <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.875rem',margin:0}}>👤 Recent Candidates</h2>
+                </div>
+                {candidates.length === 0 ? <EmptyState icon="👥" title="No candidates" sub="" /> : (
+                  <table className="sh-table">
+                    <thead><tr className={dark?'bg-gray-700/50 text-slate-400':'bg-slate-50 text-slate-500'}><th>Name</th><th>Skills</th><th>Exp</th></tr></thead>
+                    <tbody>
+                      {candidates.slice(-5).reverse().map(c => (
+                        <tr key={c.id} className={`border-t ${dark?'border-gray-700':'border-slate-100'}`}>
+                          <td><div className={`font-semibold text-sm ${dark?'text-white':'text-slate-900'}`}>{c.name}</div><div className={`text-xs ${sub}`}>{c.email}</div></td>
+                          <td className={`text-xs truncate max-w-[140px] ${sub}`}>{c.skills.split(',').slice(0,3).join(', ')}</td>
+                          <td className={`text-xs font-semibold ${dark?'text-slate-300':'text-slate-700'}`}>{c.experience}yr</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+
+              <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+                <div style={{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',padding:'16px 20px'}}>
+                  <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.875rem',margin:0}}>💼 Recent Jobs</h2>
+                </div>
+                {jobs.length === 0 ? <EmptyState icon="💼" title="No jobs posted" sub="" /> : (
+                  <table className="sh-table">
+                    <thead><tr className={dark?'bg-gray-700/50 text-slate-400':'bg-slate-50 text-slate-500'}><th>Title</th><th>Type</th><th>Req. Exp</th></tr></thead>
+                    <tbody>
+                      {jobs.slice(-5).reverse().map(j => (
+                        <tr key={j.id} className={`border-t ${dark?'border-gray-700':'border-slate-100'}`}>
+                          <td className={`font-semibold text-sm ${dark?'text-white':'text-slate-900'}`}>{j.title}</td>
+                          <td><span className={`px-2 py-0.5 rounded-lg text-xs font-semibold ${dark?'bg-indigo-900/60 text-indigo-300':'bg-indigo-50 text-indigo-700'}`}>{j.type}</span></td>
+                          <td className={`text-xs font-semibold ${dark?'text-slate-300':'text-slate-700'}`}>{j.exp||0}yr</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── PAGE: About ─────────────────────────────────────────
+function AboutPage({ dark }) {
+  const card = dark ? 'bg-gray-800 border-gray-700' : 'bg-white border-slate-200';
+  const sub  = dark ? 'text-slate-400' : 'text-slate-500';
+
+  const phases = [
+    { num:1, title:'Phase 1 — Foundation', status:'done',   sub:'Candidate registration, job posting, skill-based matching engine, CSV export, dark mode, pagination, search & filter, Chart.js dashboard, React components, GitHub Pages.' },
+    { num:2, title:'Phase 2 — React + TypeScript', status:'done', sub:'Full React SPA with React Router, typed props/state, custom hooks, reusable components, SkillTagInput, Toast system, skeleton loaders, and animated score circles.' },
+    { num:3, title:'Phase 3 — Tailwind + UI', status:'done',   sub:'Full Tailwind CSS redesign. Landing page, 404 page, split HR portal, animated match results, print-friendly reports, mobile hamburger nav, empty state illustrations.' },
+    { num:4, title:'Phase 4 — Testing', status:'active', sub:'Jest unit tests (match engine, CSV export, email validation, skills parser). React Testing Library component tests. jest-axe accessibility tests. GitHub Actions CI/CD pipeline.' },
+    { num:5, title:'Phase 5 — Django Backend', status:'future', sub:'REST API with JWT auth, PostgreSQL database, multi-user HR accounts, company multi-tenancy. Django REST Framework + Celery for email notifications.' },
+    { num:6, title:'Phase 6 — AI Features', status:'future', sub:'Resume PDF parsing (PyPDF2 + spaCy NLP), semantic skill matching, OpenAI match explanations, email notifications via Celery Beat, Google OAuth.' },
+    { num:7, title:'Phase 7 — Production', status:'future', sub:'Vercel + Render + Supabase + Cloudinary. GitHub Actions CI/CD. Custom domain. SSL. Multi-tenant SaaS pricing with JazzCash + Paddle payments.' },
+  ];
+
+  const techStack = [
+    { name:'React 18', desc:'UI Framework', icon:'⚛️' },
+    { name:'Tailwind CSS', desc:'Styling', icon:'🎨' },
+    { name:'Chart.js 4', desc:'Data Visualisation', icon:'📊' },
+    { name:'TypeScript', desc:'Type Safety', icon:'🔷' },
+    { name:'Jest', desc:'Unit Testing', icon:'🧪' },
+    { name:'React Testing Library', desc:'Component Tests', icon:'🔬' },
+    { name:'jest-axe', desc:'Accessibility Tests', icon:'♿' },
+    { name:'GitHub Actions', desc:'CI/CD', icon:'🤖' },
+    { name:'GitHub Pages', desc:'Deployment', icon:'🌐' },
+    { name:'ESLint + Prettier', desc:'Code Quality', icon:'✨' },
+  ];
+
+  return (
+    <div className="page-enter">
+      <PageHero title="About SmartHire" sub="A commercial-grade HR matching system built as an academic project" icon="ℹ️" />
+
+      <div className="max-w-5xl mx-auto px-4 py-8 space-y-8">
+
+        {/* Developer card */}
+        <div className={`rounded-2xl border shadow-sm p-6 flex flex-col sm:flex-row items-center gap-6 ${card}`}>
+          <div style={{width:80,height:80,borderRadius:20,background:'linear-gradient(135deg,#6366f1,#8b5cf6)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'2rem',flexShrink:0}}>👨‍💻</div>
+          <div>
+            <h2 className={`font-bold text-xl mb-1 ${dark?'text-white':'text-slate-900'}`} style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>Sarfraz Saeed</h2>
+            <p className={`text-sm mb-3 ${sub}`}>Computer Science · Air University Islamabad</p>
+            <div className="flex flex-wrap gap-2">
+              {['React 18','Tailwind CSS','Chart.js','Jest','GitHub Actions'].map(t => (
+                <span key={t} style={{background:'rgba(99,102,241,0.1)',border:'1px solid rgba(99,102,241,0.2)',color:'#6366f1',padding:'3px 10px',borderRadius:'50px',fontSize:'0.72rem',fontWeight:600}}>{t}</span>
+              ))}
+            </div>
+          </div>
+          <a href="https://github.com/sarfrazsaeed" target="_blank" rel="noreferrer"
+            style={{marginLeft:'auto',flexShrink:0,display:'flex',alignItems:'center',gap:8,padding:'10px 18px',borderRadius:12,background:'linear-gradient(135deg,#6366f1,#8b5cf6)',color:'#fff',fontWeight:700,fontSize:'0.875rem',textDecoration:'none'}}>
+            <i className="bi bi-github" />GitHub
+          </a>
+        </div>
+
+        {/* Roadmap */}
+        <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+          <div style={{padding:'16px 24px',borderBottom:`1px solid ${dark?'#374151':'#e2e8f0'}`}}>
+            <h2 className={`font-bold text-base ${dark?'text-white':'text-slate-900'}`} style={{fontFamily:"'Plus Jakarta Sans',sans-serif",margin:0}}>🗺 Development Roadmap</h2>
+          </div>
+          <div className="p-6 space-y-4">
+            {phases.map(p => (
+              <div key={p.num} className="flex gap-4">
+                <div style={{flexShrink:0}}>
+                  <div style={{
+                    width:40,height:40,borderRadius:10,display:'flex',alignItems:'center',justifyContent:'center',fontWeight:800,fontSize:'0.9rem',fontFamily:"'Plus Jakarta Sans',sans-serif",
+                    background:p.status==='done'?'linear-gradient(135deg,#10b981,#059669)':p.status==='active'?'linear-gradient(135deg,#6366f1,#8b5cf6)':'rgba(255,255,255,0.06)',
+                    color:p.status==='future'?'rgba(255,255,255,0.3)':'#fff',
+                    border:p.status==='future'?`1px solid ${dark?'#374151':'#e2e8f0'}`:'none'
+                  }}>{p.status==='done'?'✓':p.num}</div>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className={`font-bold text-sm ${dark?'text-white':'text-slate-900'}`}>{p.title}</span>
+                    {p.status==='done' && <span style={{background:'rgba(16,185,129,0.12)',border:'1px solid rgba(16,185,129,0.25)',color:'#10b981',padding:'1px 8px',borderRadius:'50px',fontSize:'0.65rem',fontWeight:700}}>DONE</span>}
+                    {p.status==='active' && <span style={{background:'rgba(99,102,241,0.12)',border:'1px solid rgba(99,102,241,0.25)',color:'#6366f1',padding:'1px 8px',borderRadius:'50px',fontSize:'0.65rem',fontWeight:700}}>IN PROGRESS</span>}
+                    {p.status==='future' && <span style={{background:dark?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)',border:`1px solid ${dark?'#374151':'#e2e8f0'}`,color:dark?'rgba(255,255,255,0.3)':'#94a3b8',padding:'1px 8px',borderRadius:'50px',fontSize:'0.65rem',fontWeight:700}}>PLANNED</span>}
+                  </div>
+                  <p className={`text-xs leading-relaxed ${sub}`}>{p.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tech stack */}
+        <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+          <div style={{padding:'16px 24px',borderBottom:`1px solid ${dark?'#374151':'#e2e8f0'}`}}>
+            <h2 className={`font-bold text-base ${dark?'text-white':'text-slate-900'}`} style={{fontFamily:"'Plus Jakarta Sans',sans-serif",margin:0}}>🛠 Tech Stack</h2>
+          </div>
+          <div className="p-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            {techStack.map(t => (
+              <div key={t.name} className={`p-3 rounded-xl text-center border transition-all hover:-translate-y-1 ${dark?'border-gray-700 hover:border-brand-500':'border-slate-200 hover:border-brand-300'}`}>
+                <div style={{fontSize:'1.5rem',marginBottom:6}}>{t.icon}</div>
+                <div className={`font-semibold text-xs ${dark?'text-white':'text-slate-800'}`}>{t.name}</div>
+                <div className={`text-xs mt-0.5 ${sub}`}>{t.desc}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Phase 4 Testing Detail */}
+        <div className={`rounded-2xl border shadow-sm overflow-hidden ${card}`}>
+          <div style={{background:'linear-gradient(135deg,#6366f1,#8b5cf6)',padding:'16px 24px'}}>
+            <h2 style={{color:'#fff',fontWeight:700,fontSize:'0.9rem',margin:0}}>🧪 Phase 4 — Testing Coverage</h2>
+          </div>
+          <div className="p-6">
+            <div className="grid md:grid-cols-3 gap-4">
+              {[
+                { type:'Unit Tests (Jest)', tests:['Match score: 3/5 skills = correct %','Email validation: invalid formats rejected','CSV export: correct headers + escaped values','Skills parser: "React, Node" → 2 trimmed strings','Exp score: exceeds requirement → full 20pts'] },
+                { type:'Component Tests (RTL)', tests:['CandidateForm: error on empty submit','CandidateForm: submits valid data','MatchResults: ranked list correct order','Dashboard: correct count from mock data','HRPage: job posts and deletes'] },
+                { type:'Integration + A11y', tests:['Full registration → HR portal flow','Accessibility: all inputs have labels','jest-axe: no ARIA violations','GitHub Actions: auto-run on push to main','Print mode: clean PDF output'] },
+              ].map(g => (
+                <div key={g.type} className={`rounded-xl p-4 border ${dark?'border-gray-700 bg-gray-700/30':'border-slate-100 bg-slate-50'}`}>
+                  <h3 className={`font-bold text-xs mb-3 ${dark?'text-slate-200':'text-slate-800'}`}>{g.type}</h3>
+                  <ul className="space-y-1.5">
+                    {g.tests.map(t => (
+                      <li key={t} className="flex items-start gap-2">
+                        <span style={{color:'#10b981',fontSize:'0.7rem',marginTop:2,flexShrink:0}}>✓</span>
+                        <span className={`text-xs leading-snug ${sub}`}>{t}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+// ─── ROOT APP ────────────────────────────────────────────
+function App() {
+  const [page, setPage]   = useState('candidate');
+  const [dark, setDark]   = useState(() => Storage.getDark());
+  const { toasts, show, remove } = useToast();
+
+  useEffect(() => {
+    if (dark) {
+      document.documentElement.classList.add('dark');
+      document.body.classList.add('dark-mode');
+      document.body.style.background = '#0f0f1a';
+    } else {
+      document.documentElement.classList.remove('dark');
+      document.body.classList.remove('dark-mode');
+      document.body.style.background = '#f1f5f9';
+    }
+  }, [dark]);
+
+  return (
+    <div className={`min-h-screen ${dark ? 'bg-gray-950 text-white' : 'bg-slate-100 text-slate-900'}`}>
+      <ToastContainer toasts={toasts} remove={remove} />
+      <Navbar page={page} setPage={setPage} dark={dark} setDark={setDark} />
+
+      <main>
+        {page === 'candidate'  && <CandidatePage showToast={show} dark={dark} />}
+        {page === 'hr'         && <HRPage showToast={show} dark={dark} />}
+        {page === 'match'      && <MatchPage showToast={show} dark={dark} />}
+        {page === 'dashboard'  && <DashboardPage dark={dark} showToast={show} />}
+        {page === 'about'      && <AboutPage dark={dark} />}
+      </main>
+
+      <footer className={`text-center py-5 text-xs no-print ${dark ? 'text-gray-600' : 'text-slate-400'}`}>
+        © 2026 SmartHire · Sarfraz Saeed · Air University Islamabad · React 18 · Tailwind · Chart.js · Jest
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
