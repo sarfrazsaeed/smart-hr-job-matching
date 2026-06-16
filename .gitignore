@@ -1,2 +1,25 @@
+# dependencies
 node_modules/
+.pnp
+.pnp.js
+
+# production
+dist/
+build/
+
+# misc
 .DS_Store
+*.local
+.env
+.env.local
+.env.production
+
+# coverage
+coverage/
+.nyc_output
+
+# vite
+.vite/
+
+# typescript
+*.tsbuildinfo

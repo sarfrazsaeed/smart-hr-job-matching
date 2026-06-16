@@ -1,154 +1,173 @@
-# ⚡ SmartHire v2.0 — HR & Job Matching System
+# ⚡ SmartHire v3 — HR & Job Matching System
 
 **Sarfraz Saeed · Computer Science · Air University Islamabad**
 
-> A commercial-grade HR matching frontend built entirely without a backend — Phase 1 through Phase 4 complete.
+> A commercial-grade HR candidate matching system built entirely without a backend — Phase 1 through Phase 4 complete. Built with Vite, React 18, TypeScript, Framer Motion, Chart.js, and React Router v6.
 
-[![Tests](https://github.com/sarfrazsaeed/smart-hr-job-matching/actions/workflows/ci.yml/badge.svg)](https://github.com/sarfrazsaeed/smart-hr-job-matching/actions)
-[![Live Demo](https://img.shields.io/badge/Live-Demo-6366f1)](https://sarfrazsaeed.github.io/smart-hr-job-matching)
+[![SmartHire CI](https://github.com/sarfrazsaeed/smart-hr-job-matching/actions/workflows/ci.yml/badge.svg)](https://github.com/sarfrazsaeed/smart-hr-job-matching/actions)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-10B981)](https://sarfrazsaeed.github.io/smart-hr-job-matching/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6)](https://www.typescriptlang.org/)
+[![Tests](https://img.shields.io/badge/Tests-36%20passing-10B981)](https://github.com/sarfrazsaeed/smart-hr-job-matching/actions)
 
 ---
 
 ## 🚀 Live Demo
 
-**[sarfrazsaeed.github.io/smart-hr-job-matching](https://sarfrazsaeed.github.io/smart-hr-job-matching)**
+**[sarfrazsaeed.github.io/smart-hr-job-matching](https://sarfrazsaeed.github.io/smart-hr-job-matching/)**
 
 ---
 
-## 📋 What This Is
+## 📸 Pages
 
-SmartHire is a full-featured HR candidate matching system that runs entirely in the browser using React 18, Tailwind CSS, and Chart.js. It implements a weighted scoring algorithm (70% skills / 20% experience / 10% education) to rank job candidates.
+| Page | Description |
+|---|---|
+| `/` | Marketing landing page with hero, features, pricing, tech stack |
+| `/pricing` | Full pricing page — Monthly/Yearly · USD/PKR toggle · FAQ |
+| `/app/candidates` | Register candidates, upload PDF resume, bulk delete, CSV export |
+| `/app/hr` | Post jobs, manage talent pipeline, tabbed view |
+| `/app/match` | Run match engine, ranked results with score breakdown |
+| `/app/dashboard` | Chart.js analytics — skills, job types, experience distribution |
+| `/app/about` | Project roadmap, scoring algorithm, tech stack, developer info |
+| `/404` | Animated 404 page with quick navigation links |
 
 ---
 
-## ✅ Phase Status
+## 🧠 Scoring Algorithm
 
-| Phase | What | Status |
-|-------|------|--------|
-| **Phase 1** | Foundation — matching engine, localStorage, CSV export, dark mode, Chart.js | ✅ Done |
-| **Phase 2** | React + TypeScript — SPA, hooks, typed components, SkillTagInput, Toast system | ✅ Done |
-| **Phase 3** | Tailwind UI — landing page, 404, print mode, skeleton loaders, animations | ✅ Done |
-| **Phase 4** | Testing — Jest units, React Testing Library, jest-axe, GitHub Actions CI | ✅ Done |
-| Phase 5 | Django REST API + PostgreSQL + JWT auth | 📋 Planned |
-| Phase 6 | AI features — spaCy NLP, OpenAI explanations, email (Celery) | 📋 Planned |
-| Phase 7 | Production — Vercel + Render + Supabase + Cloudinary | 📋 Planned |
+Each candidate is scored out of 100 using a weighted formula:
+
+```
+score = (matched_skills / total_skills × 70)
+      + (candidate_exp / required_exp × 20)
+      + (education_keyword_match × 10)
+```
+
+| Factor | Weight | How it's calculated |
+|---|---|---|
+| Skills | 70% | Matched skills ÷ required skills |
+| Experience | 20% | Candidate years ÷ required years (capped at 20) |
+| Education | 10% | Keyword match (BSCS, Masters, MBA etc.) |
 
 ---
 
 ## 🛠 Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| UI Framework | React 18 (UMD, no build needed for GitHub Pages) |
-| Styling | Tailwind CSS (CDN) + Custom CSS animations |
-| Charts | **Chart.js 4** — Doughnut, Bar, Radar, Polar Area |
-| Animations | CSS Keyframes (Framer Motion-style) |
-| Storage | localStorage (client-side only) |
-| Testing | Jest 29 + React Testing Library + jest-axe |
-| CI/CD | GitHub Actions — auto-test on every push |
-| Deployment | GitHub Pages |
-| Code Quality | ESLint + Prettier |
+| Category | Technology |
+|---|---|
+| Framework | React 18 |
+| Language | TypeScript 5.6 |
+| Build Tool | Vite 6 |
+| Styling | Tailwind CSS 3 |
+| Animation | Framer Motion 11 |
+| Charts | Chart.js 4 + react-chartjs-2 |
+| Routing | React Router v6 |
+| PDF Parsing | pdfjs-dist |
+| Testing | Vitest 2 |
+| CI/CD | GitHub Actions |
+| Hosting | GitHub Pages |
 
 ---
 
-## 📁 File Structure
+## ✨ Features
 
-```
-smarthire-v2/
-├── index.html           ← Main React app (all pages)
-├── landing.html         ← Marketing landing page
-├── 404.html             ← Animated 404 error page
-├── package.json         ← Jest + testing dependencies
-├── babel.config.json    ← Babel for Jest
-├── __tests__/
-│   └── matchEngine.test.js  ← Phase 4: 30+ unit tests
-├── .github/
-│   └── workflows/
-│       └── ci.yml       ← GitHub Actions CI/CD
-└── README.md
-```
+- **Resume PDF Parsing** — upload a PDF resume and skills, experience, education auto-fill
+- **Candidate Registry** — register applicants with skill tag chips, search, sort, bulk-delete, CSV export
+- **Job Management** — post jobs with required skills, type (Full-time/Remote/Contract etc.), experience
+- **Match Engine** — precision scoring with rank medals 🥇🥈🥉, matched/missing skill tags, progress bars
+- **Live Dashboard** — Chart.js bar chart (skills), doughnut (job types), experience distribution
+- **Pricing Page** — Monthly/Yearly billing toggle, USD/PKR currency switch, FAQ accordion
+- **Landing Page** — hero, app preview, features, pricing section, scoring algorithm, tech stack, CTA
+- **404 Page** — animated not-found page with quick navigation
+- **Framer Motion** — page transitions, scroll-reveal, floating animations, score circle animation
+- **Dark theme** — slate-950 navy + emerald-500 accent, custom scrollbar, responsive
 
 ---
 
-## 🧪 Phase 4 — Running Tests
+## 🧪 Tests
+
+**36 tests passing** with Vitest across 6 suites:
+
+| Suite | Tests | Coverage |
+|---|---|---|
+| `parseSkills` | 6 | Comma splitting, trimming, empty filtering, lowercasing |
+| `calcSkillScore` | 5 | Full match, no match, partial, empty job skills |
+| `calcExpScore` | 5 | No requirement, meets, exceeds, under-qualified, zero |
+| `calcEduScore` | 5 | BSCS, Masters, MBA, unrecognised, case-insensitive |
+| `validateEmail` | 7 | Valid, missing @, missing domain, spaces, double @ |
+| `exportCSV` | 5 | Headers, data, quotes, escaped quotes, empty array |
+| `Score integration` | 3 | Perfect match=100, never exceeds 100, zero match |
 
 ```bash
-# Install test dependencies
+npm test          # run all tests
+npm run test:coverage  # with coverage report
+```
+
+---
+
+## 🗺 Project Roadmap
+
+| Phase | Title | Status |
+|---|---|---|
+| 1 | Core foundation — matching engine, scoring algorithm | ✅ Done |
+| 2 | React 18 + TypeScript SPA — hooks, typed components | ✅ Done |
+| 3 | Vite + Tailwind redesign — Framer Motion, dark navy | ✅ Done |
+| 4 | Vitest tests + GitHub Actions CI/CD | ✅ Done |
+| 5 | Django REST backend — API, PostgreSQL, JWT auth | 🔜 Upcoming |
+| 6 | AI enhancements — NLP skill parsing, AI match explanations | 🔜 Upcoming |
+| 7 | Production deploy — Docker, cloud hosting, monitoring | 🔜 Upcoming |
+
+---
+
+## 🚀 Getting Started
+
+```bash
+# Clone
+git clone https://github.com/sarfrazsaeed/smart-hr-job-matching.git
+cd smart-hr-job-matching
+
+# Install
 npm install
 
-# Run all tests
+# Dev server
+npm run dev
+
+# Run tests
 npm test
 
-# Run with coverage report
-npm run test:coverage
-
-# Watch mode (during development)
-npm run test:watch
-```
-
-### Test Coverage
-
-| Test Type | What | Tool |
-|-----------|------|------|
-| Unit | Match score calculation | Jest |
-| Unit | Email validation | Jest |
-| Unit | CSV export headers + escaping | Jest |
-| Unit | Skills parser | Jest |
-| Unit | Experience score formula | Jest |
-| Unit | Skill score formula | Jest |
-| Integration | Full job → candidates → match flow | Jest |
-| Component | CandidateForm validation | React Testing Library |
-| Component | MatchResults ordering | React Testing Library |
-| Accessibility | All inputs have labels | jest-axe |
-| CI | Auto-run on push to main | GitHub Actions |
-
----
-
-## 🎯 Scoring Algorithm
-
-```
-Total Score = skill_score + exp_score + edu_score
-
-skill_score = (matched_skills / required_skills) × 70
-exp_score   = candidate_exp >= required_exp ? 20 : (candidate_exp / required_exp) × 20
-edu_score   = BSCS / BS / MS / PhD mentioned ? 10 : 5
-
-Max score: 100
+# Build for production
+npm run build
 ```
 
 ---
 
-## 📊 Chart.js Charts (Dashboard)
+## 📁 Project Structure
 
-1. **Doughnut** — Job type distribution (Full-time, Remote, Part-time, etc.)
-2. **Bar** — Top 8 skills by candidate frequency
-3. **Radar** — Top 6 skills in spider-web form
-4. **Polar Area** — Experience bracket distribution (0-1yr, 1-3yr, 3-5yr, 5+yr)
-
----
-
-## 🌙 Features
-
-- ✅ Candidate registration with SkillTag chip input
-- ✅ HR job posting portal with bulk delete + filter
-- ✅ Match engine with animated score circles + progress bars
-- ✅ 4 Chart.js live charts in dashboard
-- ✅ Dark mode (system-synced, persisted in localStorage)
-- ✅ Skeleton loading screens
-- ✅ Empty state illustrations
-- ✅ CSV export (candidates + match results)
-- ✅ Print-friendly match reports
-- ✅ Responsive mobile hamburger nav
-- ✅ Toast notifications with auto-dismiss progress bar
-- ✅ Framer Motion-style CSS animations throughout
-- ✅ 30+ Jest unit + integration tests
-- ✅ GitHub Actions CI/CD pipeline
+```
+src/
+├── components/
+│   ├── layout/        # Navbar, Footer, AppLayout
+│   ├── pages/         # LandingPage, CandidatePage, HRPage,
+│   │                  # MatchPage, DashboardPage, AboutPage,
+│   │                  # PricingPage, NotFoundPage
+│   └── ui/            # Button, Badge, Card, ScoreCircle,
+│                      # SkillInput, SkillTag, ResumeUploader,
+│                      # PricingCard, StatCard, Toast, Skeleton...
+├── data/              # content.ts, pricing.ts
+├── hooks/             # useMatch, useToast, useLocalStorage, useScrolled
+├── types/             # index.ts — all TypeScript interfaces
+├── App.tsx            # React Router setup
+├── main.tsx           # entry point
+└── index.css          # Tailwind + custom design system
+```
 
 ---
 
 ## 👨‍💻 Developer
 
-**Sarfraz Saeed**  
-Computer Science · Air University Islamabad  
-[sarfrazsaeed.github.io/portfolio](https://sarfrazsaeed.github.io/portfolio)  
-Built Phase 1 in 10 hours in first semester. Phase 4 by end of semester.
+**Sarfraz Saeed**
+Computer Science · Air University Islamabad
+[GitHub](https://github.com/sarfrazsaeed) · [Live Project](https://sarfrazsaeed.github.io/smart-hr-job-matching/)
+
+---
+
+*SmartHire v3 — Frontend complete. Django backend coming in Phase 5.*
