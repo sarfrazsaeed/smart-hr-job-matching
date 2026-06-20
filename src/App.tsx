@@ -13,7 +13,7 @@ export default function App() {
   const { toasts, addToast, removeToast } = useToast()
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
         <Route path="/"        element={<LandingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
