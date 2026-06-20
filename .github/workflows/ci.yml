@@ -23,7 +23,7 @@ jobs:
       - name: ✅ Run Vitest
         run: npm test
       - name: 🏗️ Build
-        run: npm run build
+        run: npm run build -- --mode gh-pages
 
   deploy:
     name: 🚀 Deploy to GitHub Pages
@@ -44,7 +44,7 @@ jobs:
           node-version: '20.x'
           cache: npm
       - run: npm ci
-      - run: npm run build
+      - run: npm run build -- --mode gh-pages
       - uses: actions/configure-pages@v4
       - uses: actions/upload-pages-artifact@v3
         with:
