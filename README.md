@@ -2,7 +2,7 @@
 
 **Sarfraz Saeed · Computer Science · Air University Islamabad**
 
-> A commercial-grade HR candidate matching system built entirely without a backend — Phase 1 through Phase 4 complete. Built with Vite, React 18, TypeScript, Framer Motion, Chart.js, and React Router v6.
+> A commercial-grade HR candidate matching system built entirely without a backend — Phase 1 through Phase 4 complete. All matching, scoring, and PDF parsing happen client-side today, with a Django REST backend planned for Phase 5. Built with Vite, React 18, TypeScript, Framer Motion, Chart.js, and React Router v6.
 
 [![SmartHire CI](https://github.com/sarfrazsaeed/smart-hr-job-matching/actions/workflows/ci.yml/badge.svg)](https://github.com/sarfrazsaeed/smart-hr-job-matching/actions)
 [![Live Demo](https://img.shields.io/badge/Live-Demo-10B981)](https://sarfrazsaeed.github.io/smart-hr-job-matching/)
