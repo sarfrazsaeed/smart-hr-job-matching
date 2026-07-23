@@ -5,11 +5,18 @@ import LandingPage from './components/pages/LandingPage'
 import PricingPage from './components/pages/PricingPage'
 import NotFoundPage from './components/pages/NotFoundPage'
 import ToastContainer from './components/ui/ToastContainer'
-import type { Candidate, Job } from './types'
+import type { Candidate, Job, AppSettings } from './types'
 
 export default function App() {
   const [candidates, setCandidates] = useLocalStorage<Candidate[]>('sh_candidates', [])
   const [jobs, setJobs]             = useLocalStorage<Job[]>('sh_jobs', [])
+  const [settings, setSettings]     = useLocalStorage<AppSettings>('sh_settings', {
+    companyName: 'SmartHire Team',
+    enableRemoteFirst: true,
+    skillWeight: 70,
+    experienceWeight: 20,
+    educationWeight: 10,
+  })
   const { toasts, addToast, removeToast } = useToast()
 
   return (
@@ -20,7 +27,9 @@ export default function App() {
         <Route path="/app/*"   element={
           <AppLayout
             candidates={candidates} setCandidates={setCandidates}
-            jobs={jobs} setJobs={setJobs} addToast={addToast}
+            jobs={jobs} setJobs={setJobs}
+            settings={settings} setSettings={setSettings}
+            addToast={addToast}
           />
         } />
         <Route path="/404" element={<NotFoundPage />} />

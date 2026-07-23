@@ -16,6 +16,7 @@ export const navItems: NavItem[] = [
   { label: 'HR Portal',  page: 'hr',         icon: 'briefcase' },
   { label: 'Match',      page: 'match',       icon: 'target' },
   { label: 'Dashboard',  page: 'dashboard',   icon: 'bar-chart-2' },
+  { label: 'Settings',   page: 'settings',    icon: 'settings' },
   { label: 'About',      page: 'about',       icon: 'info' },
 ]
 

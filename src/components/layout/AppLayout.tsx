@@ -8,13 +8,16 @@ import HRPage from '../pages/HRPage'
 import MatchPage from '../pages/MatchPage'
 import DashboardPage from '../pages/DashboardPage'
 import AboutPage from '../pages/AboutPage'
-import type { Candidate, Job, Page } from '../../types'
+import SettingsPage from '../pages/SettingsPage'
+import type { Candidate, Job, Page, AppSettings } from '../../types'
 
 interface Props {
   candidates: Candidate[]
   setCandidates: (c: Candidate[]) => void
   jobs: Job[]
   setJobs: (j: Job[]) => void
+  settings: AppSettings
+  setSettings: (settings: AppSettings) => void
   addToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
@@ -29,10 +32,11 @@ const routeToPage: Record<string, Page> = {
   '/app/hr':         'hr',
   '/app/match':      'match',
   '/app/dashboard':  'dashboard',
+  '/app/settings':   'settings',
   '/app/about':      'about',
 }
 
-export default function AppLayout({ candidates, setCandidates, jobs, setJobs, addToast }: Props) {
+export default function AppLayout({ candidates, setCandidates, jobs, setJobs, settings, setSettings, addToast }: Props) {
   const navigate = useNavigate()
   const location = useLocation()
   const currentPage = routeToPage[location.pathname] ?? 'candidates'
@@ -53,6 +57,7 @@ export default function AppLayout({ candidates, setCandidates, jobs, setJobs, ad
               <Route path="hr"         element={<HRPage jobs={jobs} setJobs={setJobs} candidates={candidates} addToast={addToast} />} />
               <Route path="match"      element={<MatchPage jobs={jobs} candidates={candidates} addToast={addToast} />} />
               <Route path="dashboard"  element={<DashboardPage candidates={candidates} jobs={jobs} />} />
+              <Route path="settings"   element={<SettingsPage settings={settings} setSettings={setSettings} addToast={addToast} />} />
               <Route path="about"      element={<AboutPage />} />
             </Routes>
           </motion.div>
