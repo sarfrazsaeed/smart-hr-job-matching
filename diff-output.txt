@@ -1,0 +1,426 @@
+diff --git a/src/App.tsx b/src/App.tsx
+index 2e3ada5..4978386 100644
+--- a/src/App.tsx
++++ b/src/App.tsx
+@@ -5,18 +5,11 @@ import LandingPage from './components/pages/LandingPage'
+ import PricingPage from './components/pages/PricingPage'
+ import NotFoundPage from './components/pages/NotFoundPage'
+ import ToastContainer from './components/ui/ToastContainer'
+-import type { Candidate, Job, AppSettings } from './types'
++import type { Candidate, Job } from './types'
+ 
+ export default function App() {
+   const [candidates, setCandidates] = useLocalStorage<Candidate[]>('sh_candidates', [])
+   const [jobs, setJobs]             = useLocalStorage<Job[]>('sh_jobs', [])
+-  const [settings, setSettings]     = useLocalStorage<AppSettings>('sh_settings', {
+-    companyName: 'SmartHire Team',
+-    enableRemoteFirst: true,
+-    skillWeight: 70,
+-    experienceWeight: 20,
+-    educationWeight: 10,
+-  })
+   const { toasts, addToast, removeToast } = useToast()
+ 
+   return (
+@@ -24,12 +17,16 @@ export default function App() {
+       <Routes>
+         <Route path="/"        element={<LandingPage />} />
+         <Route path="/pricing" element={<PricingPage />} />
++        <Route path="/app/settings" element={
++          <AppLayout
++            candidates={candidates} setCandidates={setCandidates}
++            jobs={jobs} setJobs={setJobs} addToast={addToast}
++          />
++        } />
+         <Route path="/app/*"   element={
+           <AppLayout
+             candidates={candidates} setCandidates={setCandidates}
+-            jobs={jobs} setJobs={setJobs}
+-            settings={settings} setSettings={setSettings}
+-            addToast={addToast}
++            jobs={jobs} setJobs={setJobs} addToast={addToast}
+           />
+         } />
+         <Route path="/404" element={<NotFoundPage />} />
+diff --git a/src/components/layout/AppLayout.tsx b/src/components/layout/AppLayout.tsx
+index 0200d44..c5fad4b 100644
+--- a/src/components/layout/AppLayout.tsx
++++ b/src/components/layout/AppLayout.tsx
+@@ -9,15 +9,13 @@ import MatchPage from '../pages/MatchPage'
+ import DashboardPage from '../pages/DashboardPage'
+ import AboutPage from '../pages/AboutPage'
+ import SettingsPage from '../pages/SettingsPage'
+-import type { Candidate, Job, Page, AppSettings } from '../../types'
++import type { Candidate, Job, Page } from '../../types'
+ 
+ interface Props {
+   candidates: Candidate[]
+   setCandidates: (c: Candidate[]) => void
+   jobs: Job[]
+   setJobs: (j: Job[]) => void
+-  settings: AppSettings
+-  setSettings: (settings: AppSettings) => void
+   addToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void
+ }
+ 
+@@ -32,11 +30,10 @@ const routeToPage: Record<string, Page> = {
+   '/app/hr':         'hr',
+   '/app/match':      'match',
+   '/app/dashboard':  'dashboard',
+-  '/app/settings':   'settings',
+   '/app/about':      'about',
+ }
+ 
+-export default function AppLayout({ candidates, setCandidates, jobs, setJobs, settings, setSettings, addToast }: Props) {
++export default function AppLayout({ candidates, setCandidates, jobs, setJobs, addToast }: Props) {
+   const navigate = useNavigate()
+   const location = useLocation()
+   const currentPage = routeToPage[location.pathname] ?? 'candidates'
+@@ -52,13 +49,13 @@ export default function AppLayout({ candidates, setCandidates, jobs, setJobs, se
+         <AnimatePresence mode="wait">
+           <motion.div key={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit">
+             <Routes>
+-              <Route index element={<Navigate to="candidates" replace />} />
+-              <Route path="candidates" element={<CandidatePage candidates={candidates} setCandidates={setCandidates} addToast={addToast} />} />
+-              <Route path="hr"         element={<HRPage jobs={jobs} setJobs={setJobs} candidates={candidates} addToast={addToast} />} />
+-              <Route path="match"      element={<MatchPage jobs={jobs} candidates={candidates} addToast={addToast} />} />
+-              <Route path="dashboard"  element={<DashboardPage candidates={candidates} jobs={jobs} />} />
+-              <Route path="settings"   element={<SettingsPage settings={settings} setSettings={setSettings} addToast={addToast} />} />
+-              <Route path="about"      element={<AboutPage />} />
++              <Route path="/app" element={<Navigate to="/app/candidates" replace />} />
++              <Route path="/app/candidates" element={<CandidatePage candidates={candidates} setCandidates={setCandidates} addToast={addToast} />} />
++              <Route path="/app/hr"         element={<HRPage jobs={jobs} setJobs={setJobs} candidates={candidates} addToast={addToast} />} />
++              <Route path="/app/match"      element={<MatchPage jobs={jobs} candidates={candidates} addToast={addToast} />} />
++              <Route path="/app/dashboard"  element={<DashboardPage candidates={candidates} jobs={jobs} />} />
++              <Route path="/app/about"      element={<AboutPage />} />
++              <Route path="/app/settings"   element={<SettingsPage />} />
+             </Routes>
+           </motion.div>
+         </AnimatePresence>
+diff --git a/src/components/layout/Navbar.tsx b/src/components/layout/Navbar.tsx
+index e8bfc4e..3cd9e58 100644
+--- a/src/components/layout/Navbar.tsx
++++ b/src/components/layout/Navbar.tsx
+@@ -1,13 +1,13 @@
+ import { useState } from 'react'
+ import { motion, AnimatePresence } from 'framer-motion'
+-import { Menu, X, Zap, Users, Briefcase, Target, BarChart2, Info, Settings } from 'lucide-react'
++import { Menu, X, Zap, Users, Briefcase, Target, BarChart2, Info } from 'lucide-react'
+ import { useScrolled } from '../../hooks'
+ import { navItems, siteConfig } from '../../data/content'
+ import type { Page } from '../../types'
+ 
+ const iconMap = {
+   users: Users, briefcase: Briefcase, target: Target,
+-  'bar-chart-2': BarChart2, info: Info, settings: Settings,
++  'bar-chart-2': BarChart2, info: Info,
+ }
+ 
+ interface Props {
+diff --git a/src/components/pages/SettingsPage.tsx b/src/components/pages/SettingsPage.tsx
+index f529aef..d2cc072 100644
+--- a/src/components/pages/SettingsPage.tsx
++++ b/src/components/pages/SettingsPage.tsx
+@@ -1,153 +1,156 @@
+ import { useState, type FormEvent } from 'react'
+-import AnimatedSection from '../ui/AnimatedSection'
++import { UserCircle2, Mail, Phone } from 'lucide-react'
+ import Button from '../ui/Button'
++import Card from '../ui/Card'
++import { useToast } from '../../hooks/useToast'
+ 
+-interface SettingsState {
+-  companyName: string
+-  enableRemoteFirst: boolean
+-  skillWeight: number
+-  experienceWeight: number
+-  educationWeight: number
++interface FormState {
++  fullName: string
++  email: string
++  phone: string
+ }
+ 
+-const DEFAULT_SETTINGS: SettingsState = {
+-  companyName: 'SmartHire Team',
+-  enableRemoteFirst: true,
+-  skillWeight: 70,
+-  experienceWeight: 20,
+-  educationWeight: 10,
++interface FormErrors {
++  fullName?: string
++  email?: string
++  phone?: string
+ }
+ 
+-interface Props {
+-  settings: SettingsState
+-  setSettings: (settings: SettingsState) => void
+-  addToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void
++const initialForm: FormState = {
++  fullName: '',
++  email: '',
++  phone: '',
+ }
+ 
+-export default function SettingsPage({ settings, setSettings, addToast }: Props) {
+-  const [form, setForm] = useState<SettingsState>(settings)
++export default function SettingsPage() {
++  const [form, setForm] = useState<FormState>(initialForm)
++  const [errors, setErrors] = useState<FormErrors>({})
++  const { addToast } = useToast()
+ 
+-  const updateField = (field: keyof SettingsState, value: string | boolean | number) => {
+-    setForm(prev => ({ ...prev, [field]: value }))
++  const validate = () => {
++    const nextErrors: FormErrors = {}
++
++    if (!form.fullName.trim()) {
++      nextErrors.fullName = 'Full name is required.'
++    } else if (form.fullName.trim().length < 2) {
++      nextErrors.fullName = 'Full name must be at least 2 characters.'
++    }
++
++    if (!form.email.trim()) {
++      nextErrors.email = 'Email is required.'
++    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
++      nextErrors.email = 'Please enter a valid email address.'
++    }
++
++    if (form.phone.trim()) {
++      const phonePattern = /^(\+\d{1,3}[-\s]?)?(\(?\d{2,4}\)?[-\s]?)?\d{3}[-\s]?\d{4}$/
++      if (!phonePattern.test(form.phone.trim())) {
++        nextErrors.phone = 'Please enter a valid phone number.'
++      }
++    }
++
++    setErrors(nextErrors)
++    return Object.keys(nextErrors).length === 0
+   }
+ 
+-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
++  const handleSubmit = (e: FormEvent) => {
+     e.preventDefault()
+-    const weightSum = form.skillWeight + form.experienceWeight + form.educationWeight
+-    if (weightSum !== 100) {
+-      addToast('Weights must sum to 100%', 'error')
++
++    if (!validate()) {
+       return
+     }
+-    setSettings(form)
+-    addToast('Settings saved successfully!', 'success')
++
++    addToast('Profile saved successfully!', 'success')
+   }
+ 
+-  const handleReset = () => {
+-    setForm(DEFAULT_SETTINGS)
+-    setSettings(DEFAULT_SETTINGS)
+-    addToast('Settings reset to defaults', 'info')
++  const handleFieldChange = (field: keyof FormState, value: string) => {
++    setForm(prev => ({ ...prev, [field]: value }))
++
++    if (errors[field]) {
++      setErrors(prev => ({ ...prev, [field]: undefined }))
++    }
+   }
+ 
+   return (
+-    <div className="container-app py-8 space-y-6 max-w-3xl">
+-      <AnimatedSection>
+-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+-          <div>
+-            <h1 className="section-title">Settings</h1>
+-            <p className="section-subtitle">Customize match scoring and app preferences.</p>
+-          </div>
+-          <Button variant="secondary" onClick={handleReset}>
+-            Reset defaults
+-          </Button>
++    <div className="container-app py-8 space-y-6">
++      <div className="max-w-3xl mx-auto space-y-6">
++        <div className="space-y-2">
++          <h1 className="section-title">Settings</h1>
++          <p className="section-subtitle">Keep your profile details current for better candidate outreach.</p>
+         </div>
+-      </AnimatedSection>
+-
+-      <AnimatedSection>
+-        <form onSubmit={handleSubmit} className="card space-y-6">
+-          <div className="space-y-3">
+-            <p className="text-sm text-slate-400">These preferences are saved locally in your browser and will persist across reloads.</p>
+-          </div>
+-
+-          <div className="grid grid-cols-1 gap-4">
+-            <div>
+-              <label className="label" htmlFor="companyName">Team / Company Name</label>
+-              <input
+-                id="companyName"
+-                className="input"
+-                value={form.companyName}
+-                onChange={e => updateField('companyName', e.target.value)}
+-                placeholder="SmartHire Team"
+-              />
+-            </div>
+ 
+-            <div className="flex flex-col gap-2 rounded-2xl border border-slate-700 bg-slate-950 p-4">
+-              <div className="flex items-center justify-between gap-4">
+-                <div>
+-                  <p className="text-sm font-semibold text-white">Remote-first results</p>
+-                  <p className="text-xs text-slate-500">Show remote roles higher in ranked matches.</p>
+-                </div>
+-                <label className="inline-flex items-center gap-2 text-sm text-slate-300">
+-                  <input
+-                    type="checkbox"
+-                    checked={form.enableRemoteFirst}
+-                    onChange={e => updateField('enableRemoteFirst', e.target.checked)}
+-                    className="h-4 w-4 rounded border-slate-700 bg-slate-900 text-emerald-500 focus:ring-emerald-500"
+-                  />
+-                  Enabled
+-                </label>
++        <Card animate>
++          <form onSubmit={handleSubmit} className="space-y-5">
++            <div className="flex items-center gap-3">
++              <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 flex items-center justify-center">
++                <UserCircle2 className="w-6 h-6 text-emerald-400" />
++              </div>
++              <div>
++                <h2 className="text-lg font-semibold text-white">Personal information</h2>
++                <p className="text-sm text-slate-400">We use this to personalize your SmartHire workspace.</p>
+               </div>
+             </div>
+ 
+-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+-              <div>
+-                <label className="label" htmlFor="skillWeight">Skills weight</label>
++            <div className="grid gap-4 md:grid-cols-2">
++              <div className="md:col-span-2">
++                <label className="label" htmlFor="fullName">Full Name</label>
+                 <input
+-                  id="skillWeight"
+-                  type="number"
+-                  min={0}
+-                  max={100}
+-                  className="input"
+-                  value={form.skillWeight}
+-                  onChange={e => updateField('skillWeight', Number(e.target.value))}
++                  id="fullName"
++                  name="fullName"
++                  className={`input ${errors.fullName ? 'border-rose-500' : ''}`}
++                  placeholder="Aisha Khan"
++                  value={form.fullName}
++                  onChange={e => handleFieldChange('fullName', e.target.value)}
+                 />
++                {errors.fullName && <p className="mt-2 text-sm text-rose-400">{errors.fullName}</p>}
+               </div>
++
+               <div>
+-                <label className="label" htmlFor="experienceWeight">Experience weight</label>
+-                <input
+-                  id="experienceWeight"
+-                  type="number"
+-                  min={0}
+-                  max={100}
+-                  className="input"
+-                  value={form.experienceWeight}
+-                  onChange={e => updateField('experienceWeight', Number(e.target.value))}
+-                />
++                <label className="label" htmlFor="email">Email</label>
++                <div className="relative">
++                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
++                  <input
++                    id="email"
++                    name="email"
++                    type="email"
++                    className={`input pl-10 ${errors.email ? 'border-rose-500' : ''}`}
++                    placeholder="aisha@example.com"
++                    value={form.email}
++                    onChange={e => handleFieldChange('email', e.target.value)}
++                  />
++                </div>
++                {errors.email && <p className="mt-2 text-sm text-rose-400">{errors.email}</p>}
+               </div>
++
+               <div>
+-                <label className="label" htmlFor="educationWeight">Education weight</label>
+-                <input
+-                  id="educationWeight"
+-                  type="number"
+-                  min={0}
+-                  max={100}
+-                  className="input"
+-                  value={form.educationWeight}
+-                  onChange={e => updateField('educationWeight', Number(e.target.value))}
+-                />
++                <label className="label" htmlFor="phone">Phone</label>
++                <div className="relative">
++                  <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
++                  <input
++                    id="phone"
++                    name="phone"
++                    className={`input pl-10 ${errors.phone ? 'border-rose-500' : ''}`}
++                    placeholder="+92 300 1234567"
++                    value={form.phone}
++                    onChange={e => handleFieldChange('phone', e.target.value)}
++                  />
++                </div>
++                {errors.phone && <p className="mt-2 text-sm text-rose-400">{errors.phone}</p>}
+               </div>
+             </div>
+ 
+-            <div className="rounded-2xl border border-slate-700 bg-slate-950 p-4">
+-              <p className="text-sm text-slate-400">Current weight total: <span className="text-white font-semibold">{form.skillWeight + form.experienceWeight + form.educationWeight}%</span></p>
++            <div className="flex justify-end gap-3 pt-2">
++              <Button type="button" variant="secondary" onClick={() => {
++                setForm(initialForm)
++                setErrors({})
++              }}>
++                Reset
++              </Button>
++              <Button type="submit" variant="primary">Save Profile</Button>
+             </div>
+-          </div>
+-
+-          <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+-            <Button type="submit" variant="primary">Save settings</Button>
+-            <Button type="button" variant="ghost" onClick={() => setForm(settings)}>Cancel</Button>
+-          </div>
+-        </form>
+-      </AnimatedSection>
++          </form>
++        </Card>
++      </div>
+     </div>
+   )
+ }
+diff --git a/src/data/content.ts b/src/data/content.ts
+index 192de43..1e01cf2 100644
+--- a/src/data/content.ts
++++ b/src/data/content.ts
+@@ -16,7 +16,6 @@ export const navItems: NavItem[] = [
+   { label: 'HR Portal',  page: 'hr',         icon: 'briefcase' },
+   { label: 'Match',      page: 'match',       icon: 'target' },
+   { label: 'Dashboard',  page: 'dashboard',   icon: 'bar-chart-2' },
+-  { label: 'Settings',   page: 'settings',    icon: 'settings' },
+   { label: 'About',      page: 'about',       icon: 'info' },
+ ]
+ 
+diff --git a/src/types/index.ts b/src/types/index.ts
+index b466799..eb5a4f1 100644
+--- a/src/types/index.ts
++++ b/src/types/index.ts
+@@ -63,14 +63,6 @@ export interface Candidate {
+     type: 'success' | 'error' | 'info' | 'warning'
+   }
+   
+-  export interface AppSettings {
+-    companyName: string
+-    enableRemoteFirst: boolean
+-    skillWeight: number
+-    experienceWeight: number
+-    educationWeight: number
+-  }
+-
+   export type Page = 'candidates' | 'hr' | 'match' | 'dashboard' | 'about' | 'settings'
+   
+   export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
