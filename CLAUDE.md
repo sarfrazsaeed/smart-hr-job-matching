@@ -31,3 +31,12 @@
 
 ## Roadmap
 - Phase 5 (Django REST backend) is planned next
+
+## Rules learned from AI-assisted workflow drill (FE-04)
+- Always specify the exact route path when adding new pages — this app follows an 
+  `/app/*` convention for all authenticated pages; omitting this leads to inconsistent 
+  routing (e.g. `/settings` instead of `/app/settings`)
+- Keep form state local to the component with useState — don't lift page-specific state 
+  into AppLayout or other shared components unless it's genuinely needed app-wide
+- Always request a verification step (write tests + run them) when adding a new feature — 
+  this catches real bugs (like state simulation gaps), not just style issues
