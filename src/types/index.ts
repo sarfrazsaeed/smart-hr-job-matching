@@ -63,7 +63,7 @@ export interface Candidate {
     type: 'success' | 'error' | 'info' | 'warning'
   }
   
-  export type Page = 'candidates' | 'hr' | 'match' | 'dashboard' | 'about'
+  export type Page = 'candidates' | 'hr' | 'match' | 'dashboard' | 'about' | 'settings'
   
   export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
   export type ButtonSize    = 'sm' | 'md' | 'lg'

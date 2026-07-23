@@ -17,6 +17,12 @@ export default function App() {
       <Routes>
         <Route path="/"        element={<LandingPage />} />
         <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/app/settings" element={
+          <AppLayout
+            candidates={candidates} setCandidates={setCandidates}
+            jobs={jobs} setJobs={setJobs} addToast={addToast}
+          />
+        } />
         <Route path="/app/*"   element={
           <AppLayout
             candidates={candidates} setCandidates={setCandidates}

@@ -8,6 +8,7 @@ import HRPage from '../pages/HRPage'
 import MatchPage from '../pages/MatchPage'
 import DashboardPage from '../pages/DashboardPage'
 import AboutPage from '../pages/AboutPage'
+import SettingsPage from '../pages/SettingsPage'
 import type { Candidate, Job, Page } from '../../types'
 
 interface Props {
@@ -48,12 +49,13 @@ export default function AppLayout({ candidates, setCandidates, jobs, setJobs, ad
         <AnimatePresence mode="wait">
           <motion.div key={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit">
             <Routes>
-              <Route index element={<Navigate to="candidates" replace />} />
-              <Route path="candidates" element={<CandidatePage candidates={candidates} setCandidates={setCandidates} addToast={addToast} />} />
-              <Route path="hr"         element={<HRPage jobs={jobs} setJobs={setJobs} candidates={candidates} addToast={addToast} />} />
-              <Route path="match"      element={<MatchPage jobs={jobs} candidates={candidates} addToast={addToast} />} />
-              <Route path="dashboard"  element={<DashboardPage candidates={candidates} jobs={jobs} />} />
-              <Route path="about"      element={<AboutPage />} />
+              <Route path="/app" element={<Navigate to="/app/candidates" replace />} />
+              <Route path="/app/candidates" element={<CandidatePage candidates={candidates} setCandidates={setCandidates} addToast={addToast} />} />
+              <Route path="/app/hr"         element={<HRPage jobs={jobs} setJobs={setJobs} candidates={candidates} addToast={addToast} />} />
+              <Route path="/app/match"      element={<MatchPage jobs={jobs} candidates={candidates} addToast={addToast} />} />
+              <Route path="/app/dashboard"  element={<DashboardPage candidates={candidates} jobs={jobs} />} />
+              <Route path="/app/about"      element={<AboutPage />} />
+              <Route path="/app/settings"   element={<SettingsPage />} />
             </Routes>
           </motion.div>
         </AnimatePresence>
