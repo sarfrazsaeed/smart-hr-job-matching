@@ -47,7 +47,10 @@ export default function QualificationChatPage() {
 
       console.log('[chat] response status:', res.status)
 
-      if (!res.ok) throw new Error(`Server responded with ${res.status}`)
+      if (!res.ok) {
+        const errorText = await res.text().catch(() => '')
+        throw new Error(errorText || `Server responded with ${res.status}`)
+      }
       if (!res.body) throw new Error('No response body')
 
       const reader = res.body.getReader()
@@ -66,7 +69,11 @@ export default function QualificationChatPage() {
 
       console.log('[chat] stream finished, length:', assistantText.length)
 
-      const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: assistantText || '(empty response)' }
+      if (!assistantText.trim()) {
+        throw new Error('The assistant returned no text.')
+      }
+
+      const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: assistantText }
       setMessages(prev => [...prev, assistantMsg])
       setPartial('')
     } catch (err) {
