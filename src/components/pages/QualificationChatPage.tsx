@@ -7,11 +7,11 @@ export default function QualificationChatPage() {
   const [input, setInput] = useState('')
   const [isStreaming, setIsStreaming] = useState(false)
   const [partial, setPartial] = useState('')
+  const [error, setError] = useState<string | null>(null)
   const abortRef = useRef<AbortController | null>(null)
   const listRef = useRef<HTMLDivElement | null>(null)
   const [isUserScrolling, setIsUserScrolling] = useState(false)
 
-  // auto-scroll when new messages arrive unless user scrolled up
   useEffect(() => {
     if (!listRef.current || isUserScrolling) return
     listRef.current.scrollTop = listRef.current.scrollHeight
@@ -21,20 +21,31 @@ export default function QualificationChatPage() {
     const userMsg: Message = { id: String(Date.now()), role: 'user', content: text }
     setMessages(prev => [...prev, userMsg])
     setInput('')
+    setError(null)
 
-    // start streaming assistant response
     setIsStreaming(true)
     setPartial('')
     abortRef.current = new AbortController()
 
+    const timeoutId = setTimeout(() => {
+      console.error('[chat] request timed out after 20s')
+      abortRef.current?.abort()
+    }, 20000)
+
     try {
+      console.log('[chat] sending request to /api/chat')
       const res = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [...messages.map(m => ({ role: m.role, content: m.content })), { role: 'user', content: text }] }),
+        body: JSON.stringify({
+          messages: [...messages.map(m => ({ role: m.role, content: m.content })), { role: 'user', content: text }],
+        }),
         signal: abortRef.current.signal,
       })
 
+      console.log('[chat] response status:', res.status)
+
+      if (!res.ok) throw new Error(`Server responded with ${res.status}`)
       if (!res.body) throw new Error('No response body')
 
       const reader = res.body.getReader()
@@ -52,20 +63,26 @@ export default function QualificationChatPage() {
         }
       }
 
-      // finalize assistant message
-      const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: assistantText }
+      console.log('[chat] stream finished, length:', assistantText.length)
+
+      const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: assistantText || '(empty response)' }
       setMessages(prev => [...prev, assistantMsg])
       setPartial('')
     } catch (err) {
+      console.error('[chat] error:', err)
       if ((err as any).name === 'AbortError') {
-        // keep partial as a final partial message
-        const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: partial }
-        setMessages(prev => [...prev, assistantMsg])
-        setPartial('')
+        if (partial) {
+          const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: partial }
+          setMessages(prev => [...prev, assistantMsg])
+          setPartial('')
+        } else {
+          setError('The request took too long or was stopped. Please try again.')
+        }
       } else {
-        console.error(err)
+        setError('Something went wrong talking to the assistant. Please try again.')
       }
     } finally {
+      clearTimeout(timeoutId)
       setIsStreaming(false)
       abortRef.current = null
     }
@@ -114,6 +131,12 @@ export default function QualificationChatPage() {
 
           {isStreaming && !partial && (
             <div className="text-slate-400 mt-2">Thinking…</div>
+          )}
+
+          {error && (
+            <div className="text-red-400 text-sm mt-2 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2">
+              {error}
+            </div>
           )}
         </div>
 
