@@ -1,4 +1,4 @@
-import { streamText } from 'ai'
+import { convertToModelMessages, streamText } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 
 export const maxDuration = 30
@@ -64,10 +64,12 @@ export default async function handler(req: NodeRequestLike | Request, res?: Node
 
   try {
     console.log('[chat] Calling Claude with', messages.length, 'messages')
+    const modelMessages = await convertToModelMessages(messages)
+
     const result = streamText({
       model: anthropic('claude-sonnet-4-5'),
       system: systemPrompt,
-      messages,
+      messages: modelMessages,
       onError({ error }) {
         console.error('[chat] model error:', error)
       },
