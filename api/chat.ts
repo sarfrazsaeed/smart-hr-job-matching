@@ -82,6 +82,10 @@ export default async function handler(req: NodeRequestLike | Request, res?: Node
     return sendText(res, 200, text)
   } catch (err) {
     console.error('[chat] setup error:', err)
-    return sendText(res, 500, 'The assistant is temporarily unavailable. Check the Vercel logs for the chat function error.')
+    const errorMessage = err instanceof Error && err.message.trim()
+      ? err.message
+      : 'The assistant is temporarily unavailable. Check the Vercel logs for the chat function error.'
+
+    return sendText(res, 500, errorMessage)
   }
 }
