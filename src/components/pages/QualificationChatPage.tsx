@@ -32,6 +32,8 @@ export default function QualificationChatPage() {
       abortRef.current?.abort()
     }, 20000)
 
+    let assistantText = ''
+
     try {
       console.log('[chat] sending request to /api/chat')
       const res = await fetch('/api/chat', {
@@ -51,7 +53,6 @@ export default function QualificationChatPage() {
       const reader = res.body.getReader()
       const decoder = new TextDecoder()
       let done = false
-      let assistantText = ''
 
       while (!done) {
         const { value, done: d } = await reader.read()
@@ -70,9 +71,12 @@ export default function QualificationChatPage() {
       setPartial('')
     } catch (err) {
       console.error('[chat] error:', err)
-      if ((err as any).name === 'AbortError') {
-        if (partial) {
-          const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: partial }
+      const isAbortError =
+        err instanceof DOMException ? err.name === 'AbortError' : err instanceof Error && err.name === 'AbortError'
+
+      if (isAbortError) {
+        if (assistantText) {
+          const assistantMsg: Message = { id: String(Date.now() + 1), role: 'assistant', content: assistantText }
           setMessages(prev => [...prev, assistantMsg])
           setPartial('')
         } else {
