@@ -90,7 +90,11 @@ export default function QualificationChatPage() {
           setError('The request took too long or was stopped. Please try again.')
         }
       } else {
-        setError('Something went wrong talking to the assistant. Please try again.')
+        const errorMessage = err instanceof Error && err.message.trim()
+          ? err.message
+          : 'Something went wrong talking to the assistant. Please try again.'
+
+        setError(errorMessage)
       }
     } finally {
       clearTimeout(timeoutId)
