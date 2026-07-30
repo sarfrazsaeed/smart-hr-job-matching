@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Zap, Users, Briefcase, Target, BarChart2, Info } from 'lucide-react'
+import { Menu, X, Zap, Users, Briefcase, Target, BarChart2, Info, MessageSquare } from 'lucide-react'
 import { useScrolled } from '../../hooks'
 import { navItems, siteConfig } from '../../data/content'
 import type { Page } from '../../types'
 
 const iconMap = {
   users: Users, briefcase: Briefcase, target: Target,
-  'bar-chart-2': BarChart2, info: Info,
+  'bar-chart-2': BarChart2, info: Info, chat: MessageSquare,
 }
 
 interface Props {

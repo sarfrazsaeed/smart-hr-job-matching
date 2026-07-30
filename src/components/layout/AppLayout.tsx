@@ -9,6 +9,7 @@ import MatchPage from '../pages/MatchPage'
 import DashboardPage from '../pages/DashboardPage'
 import AboutPage from '../pages/AboutPage'
 import SettingsPage from '../pages/SettingsPage'
+import QualificationChatPage from '../pages/QualificationChatPage'
 import type { Candidate, Job, Page } from '../../types'
 
 interface Props {
@@ -27,6 +28,7 @@ const pageVariants = {
 
 const routeToPage: Record<string, Page> = {
   '/app/candidates': 'candidates',
+  '/app/qualify':    'qualify',
   '/app/hr':         'hr',
   '/app/match':      'match',
   '/app/dashboard':  'dashboard',
@@ -49,13 +51,14 @@ export default function AppLayout({ candidates, setCandidates, jobs, setJobs, ad
         <AnimatePresence mode="wait">
           <motion.div key={location.pathname} variants={pageVariants} initial="initial" animate="animate" exit="exit">
             <Routes>
-              <Route path="/app" element={<Navigate to="/app/candidates" replace />} />
-              <Route path="/app/candidates" element={<CandidatePage candidates={candidates} setCandidates={setCandidates} addToast={addToast} />} />
-              <Route path="/app/hr"         element={<HRPage jobs={jobs} setJobs={setJobs} candidates={candidates} addToast={addToast} />} />
-              <Route path="/app/match"      element={<MatchPage jobs={jobs} candidates={candidates} addToast={addToast} />} />
-              <Route path="/app/dashboard"  element={<DashboardPage candidates={candidates} jobs={jobs} />} />
-              <Route path="/app/about"      element={<AboutPage />} />
-              <Route path="/app/settings"   element={<SettingsPage />} />
+              <Route path="" element={<Navigate to="candidates" replace />} />
+              <Route path="candidates" element={<CandidatePage candidates={candidates} setCandidates={setCandidates} addToast={addToast} />} />
+              <Route path="hr"         element={<HRPage jobs={jobs} setJobs={setJobs} candidates={candidates} setCandidates={setCandidates} addToast={addToast} />} />
+              <Route path="match"      element={<MatchPage jobs={jobs} candidates={candidates} addToast={addToast} />} />
+              <Route path="dashboard"  element={<DashboardPage candidates={candidates} jobs={jobs} />} />
+              <Route path="about"      element={<AboutPage />} />
+              <Route path="settings"   element={<SettingsPage />} />
+              <Route path="qualify"    element={<QualificationChatPage />} />
             </Routes>
           </motion.div>
         </AnimatePresence>

@@ -1,5 +1,7 @@
 // ─── Core domain types ───────────────────────────────────────────────────────
 
+export type CandidateStatus = 'Applied' | 'Screening' | 'Interview' | 'Offer' | 'Hired'
+
 export interface Candidate {
     id: string
     name: string
@@ -7,6 +9,7 @@ export interface Candidate {
     skills: string
     experience: string
     education: string
+    status?: CandidateStatus
     createdAt: string
   }
   
@@ -63,7 +66,7 @@ export interface Candidate {
     type: 'success' | 'error' | 'info' | 'warning'
   }
   
-  export type Page = 'candidates' | 'hr' | 'match' | 'dashboard' | 'about' | 'settings'
+  export type Page = 'candidates' | 'hr' | 'match' | 'dashboard' | 'about' | 'qualify' | 'settings'
   
   export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger'
   export type ButtonSize    = 'sm' | 'md' | 'lg'

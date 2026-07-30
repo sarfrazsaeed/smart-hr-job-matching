@@ -179,6 +179,10 @@ export default function PricingPage() {
                 className="flex items-center justify-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-6 py-3 rounded-xl transition-colors text-sm">
                 Try for free
               </button>
+              <button onClick={() => navigate('/app/qualify')}
+                className="flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-500 text-slate-300 font-medium px-6 py-3 rounded-xl transition-colors text-sm">
+                Chat with assistant
+              </button>
               <a href={`mailto:sarfraz@au.edu.pk?subject=SmartHire Pricing Question`}
                 className="flex items-center justify-center gap-2 border border-slate-700 hover:border-slate-500 text-slate-300 font-medium px-6 py-3 rounded-xl transition-colors text-sm">
                 Contact us

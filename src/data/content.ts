@@ -13,6 +13,7 @@ export const siteConfig = {
 
 export const navItems: NavItem[] = [
   { label: 'Candidates', page: 'candidates', icon: 'users' },
+  { label: 'Qualify',    page: 'qualify',   icon: 'chat' },
   { label: 'HR Portal',  page: 'hr',         icon: 'briefcase' },
   { label: 'Match',      page: 'match',       icon: 'target' },
   { label: 'Dashboard',  page: 'dashboard',   icon: 'bar-chart-2' },

@@ -1,13 +1,14 @@
 import { useState, type FormEvent } from 'react'
 import { motion } from 'framer-motion'
-import { UserPlus, Search, Download, Trash2, Users, ChevronUp, ChevronDown, FileText } from 'lucide-react'
+import { UserPlus, Search, Trash2, Users, ChevronUp, ChevronDown, FileText, Briefcase } from 'lucide-react'
 import AnimatedSection from '../ui/AnimatedSection'
+import Badge from '../ui/Badge'
 import Button from '../ui/Button'
 import SkillInput from '../ui/SkillInput'
 import EmptyState from '../ui/EmptyState'
 import StatCard from '../ui/StatCard'
 import ResumeUploader from '../ui/ResumeUploader'
-import type { Candidate, SortField, SortDir } from '../../types'
+import type { Candidate, SortField, SortDir, CandidateStatus } from '../../types'
 
 interface Props {
   candidates: Candidate[]
@@ -15,8 +16,12 @@ interface Props {
   addToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
+const statusColor = (status: CandidateStatus) => {
+  return status === 'Hired' ? 'emerald' : status === 'Offer' ? 'amber' : status === 'Interview' ? 'blue' : status === 'Screening' ? 'rose' : 'slate'
+}
+
 const EMPTY: Omit<Candidate, 'id' | 'createdAt'> = {
-  name: '', email: '', skills: '', experience: '', education: '',
+  name: '', email: '', skills: '', experience: '', education: '', status: 'Applied',
 }
 
 const PAGE_SIZE = 8
@@ -71,21 +76,13 @@ export default function CandidatePage({ candidates, setCandidates, addToast }: P
     setSelected(new Set())
   }
 
-  const exportCSV = () => {
-    const headers = ['Name', 'Email', 'Skills', 'Experience (yrs)', 'Education']
-    const rows = candidates.map(c =>
-      [c.name, c.email, c.skills, c.experience, c.education]
-        .map(v => `"${String(v ?? '').replace(/"/g, '""')}"`)
-        .join(',')
-    )
-    const blob = new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv' })
-    Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'candidates.csv' }).click()
-    addToast('CSV exported!', 'success')
-  }
+  // CSV export removed from Candidate page — export stays on Match page for HR use
 
   const toggleSort = (field: SortField) => {
     setSort(prev => ({ field, dir: prev.field === field && prev.dir === 'asc' ? 'desc' : 'asc' }))
   }
+
+  const pipelineCount = candidates.filter(c => (c.status ?? 'Applied') !== 'Applied').length
 
   const filtered = candidates
     .filter(c =>
@@ -127,11 +124,12 @@ export default function CandidatePage({ candidates, setCandidates, addToast }: P
       </AnimatedSection>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard label="Total" value={candidates.length} icon={<Users className="w-5 h-5" />} color="emerald" delay={0} />
         <StatCard label="This session" value={candidates.filter(c => Date.now() - new Date(c.createdAt).getTime() < 3600000).length}
           icon={<UserPlus className="w-5 h-5" />} color="blue" delay={0.1} />
-        <StatCard label="Selected" value={selected.size} icon={<Trash2 className="w-5 h-5" />} color="amber" delay={0.2} />
+        <StatCard label="In Pipeline" value={pipelineCount} icon={<Briefcase className="w-5 h-5" />} color="amber" delay={0.2} />
+        <StatCard label="Selected" value={selected.size} icon={<Trash2 className="w-5 h-5" />} color="rose" delay={0.3} />
       </div>
 
       {/* Add form */}
@@ -227,21 +225,28 @@ export default function CandidatePage({ candidates, setCandidates, addToast }: P
       {/* Table */}
       <AnimatedSection delay={0.1}>
         <div className="card p-0 overflow-hidden">
-          <div className="p-4 flex flex-col sm:flex-row gap-3 border-b border-slate-700/50">
-            <div className="relative flex-1">
+          <div className="p-4 flex flex-col gap-3 border-b border-slate-700/50">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input className="input pl-9" placeholder="Search candidates..." value={search}
                 onChange={e => { setSearch(e.target.value); setPage(1) }} />
             </div>
-            <div className="flex gap-2 shrink-0">
-              {selected.size > 0 && (
-                <Button variant="danger" size="sm" onClick={deleteSelected}>
-                  <Trash2 className="w-4 h-4" /> Delete ({selected.size})
-                </Button>
-              )}
-              <Button variant="secondary" size="sm" onClick={exportCSV} disabled={candidates.length === 0}>
-                <Download className="w-4 h-4" /> Export CSV
-              </Button>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap gap-2">
+                <Badge variant="emerald" className="text-xs px-3 py-1.5">Applied</Badge>
+                <Badge variant="rose" className="text-xs px-3 py-1.5">Screening</Badge>
+                <Badge variant="blue" className="text-xs px-3 py-1.5">Interview</Badge>
+                <Badge variant="amber" className="text-xs px-3 py-1.5">Offer</Badge>
+                <Badge variant="emerald" className="text-xs px-3 py-1.5">Hired</Badge>
+              </div>
+              <div className="flex gap-2 shrink-0">
+                {selected.size > 0 && (
+                  <Button variant="danger" size="sm" onClick={deleteSelected}>
+                    <Trash2 className="w-4 h-4" /> Delete ({selected.size})
+                  </Button>
+                )}
+                {/* Export CSV moved to Match page for HR use */}
+              </div>
             </div>
           </div>
 
@@ -267,6 +272,7 @@ export default function CandidatePage({ candidates, setCandidates, addToast }: P
                         <span className="flex items-center gap-1">Email <SortIcon field="email" /></span>
                       </th>
                       <th className="th">Skills</th>
+                      <th className="th">Stage</th>
                       <th className="th cursor-pointer" onClick={() => toggleSort('experience')}>
                         <span className="flex items-center gap-1">Exp <SortIcon field="experience" /></span>
                       </th>
@@ -281,7 +287,11 @@ export default function CandidatePage({ candidates, setCandidates, addToast }: P
                           <input type="checkbox" checked={selected.has(c.id)}
                             onChange={e => {
                               const s = new Set(selected)
-                              e.target.checked ? s.add(c.id) : s.delete(c.id)
+                              if (e.target.checked) {
+                                s.add(c.id)
+                              } else {
+                                s.delete(c.id)
+                              }
                               setSelected(s)
                             }}
                             className="rounded border-slate-600 bg-slate-800" />
@@ -304,6 +314,11 @@ export default function CandidatePage({ candidates, setCandidates, addToast }: P
                               <span className="text-xs text-slate-500">+{c.skills.split(',').length - 3}</span>
                             )}
                           </div>
+                        </td>
+                        <td className="td">
+                          <Badge variant={statusColor(c.status ?? 'Applied')} className="text-xs px-3 py-1.5">
+                            {c.status ?? 'Applied'}
+                          </Badge>
                         </td>
                         <td className="td text-slate-400">{c.experience} yrs</td>
                         <td className="td text-slate-400 max-w-[140px] truncate">{c.education}</td>

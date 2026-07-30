@@ -20,6 +20,42 @@ interface Props {
 const MEDALS = ['🥇', '🥈', '🥉']
 
 export default function MatchPage({ jobs, candidates, addToast }: Props) {
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+
+  const toggleSelect = (id: string) => {
+    setSelectedIds(prev => {
+      const s = new Set(prev)
+      if (s.has(id)) s.delete(id); else s.add(id)
+      return s
+    })
+  }
+
+  const selectAllToggle = () => {
+    if (selectedIds.size === results.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(results.map(r => r.candidate.id)))
+    }
+  }
+
+  const exportSelected = () => {
+    const sel = results.filter(r => selectedIds.has(r.candidate.id))
+    if (!sel.length) return
+    const headers = ['Name', 'Email', 'Skills', 'Experience (yrs)', 'Education', 'Score', 'Rank']
+    const rows = sel.map(r => [
+      r.candidate.name,
+      r.candidate.email,
+      r.candidate.skills,
+      r.candidate.experience,
+      r.candidate.education,
+      r.score,
+      r.rank,
+    ].map(v => `"${String(v ?? '').replace(/"/g, '""')}"`).join(','))
+    const blob = new Blob([[headers.join(','), ...rows].join('\n')], { type: 'text/csv' })
+    Object.assign(document.createElement('a'), { href: URL.createObjectURL(blob), download: 'selected-candidates.csv' }).click()
+    addToast('Selected candidates exported!', 'success')
+  }
+
   const [selectedJob, setSelectedJob] = useState<Job | null>(null)
   const [results, setResults]         = useState<MatchResult[]>([])
   const [loading, setLoading]         = useState(false)
@@ -89,15 +125,23 @@ export default function MatchPage({ jobs, candidates, addToast }: Props) {
               ))}
             </div>
           )}
-          <div className="flex gap-3">
+          <div className="flex gap-3 items-center">
             <Button onClick={handleMatch} disabled={!selectedJob || loading || candidates.length === 0} variant="primary">
               <Target className="w-4 h-4" />
               {loading ? 'Matching...' : 'Run Match'}
             </Button>
             {results.length > 0 && (
-              <Button onClick={exportCSV} variant="secondary" size="sm">
-                <Download className="w-4 h-4" /> Export CSV
-              </Button>
+              <>
+                <button onClick={selectAllToggle} className="text-sm text-slate-300 px-3 py-2 rounded-lg border border-slate-700 hover:bg-slate-800">
+                  {selectedIds.size === results.length ? 'Clear selection' : 'Select all'}
+                </button>
+                <Button onClick={exportSelected} variant="secondary" size="sm" disabled={selectedIds.size === 0}>
+                  Export Selected
+                </Button>
+                <Button onClick={exportCSV} variant="secondary" size="sm">
+                  <Download className="w-4 h-4" /> Export CSV
+                </Button>
+              </>
             )}
           </div>
         </div>
@@ -138,9 +182,12 @@ export default function MatchPage({ jobs, candidates, addToast }: Props) {
                   className="card flex flex-col sm:flex-row sm:items-center gap-4"
                 >
                   {/* Rank + score */}
-                  <div className="flex items-center gap-4 shrink-0">
-                    <span className="text-2xl w-8 text-center">{MEDALS[idx] ?? `#${r.rank}`}</span>
-                    <ScoreCircle score={r.score} size="md" />
+                  <div className="flex items-center gap-3 shrink-0">
+                    <input type="checkbox" checked={selectedIds.has(r.candidate.id)} onChange={() => toggleSelect(r.candidate.id)} className="w-4 h-4 text-emerald-400" />
+                    <div className="flex items-center gap-4">
+                      <span className="text-2xl w-8 text-center">{MEDALS[idx] ?? `#${r.rank}`}</span>
+                      <ScoreCircle score={r.score} size="md" />
+                    </div>
                   </div>
 
                   {/* Info */}

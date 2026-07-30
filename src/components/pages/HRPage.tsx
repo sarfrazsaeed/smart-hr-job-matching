@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react'
+import { useState, type FormEvent, type DragEvent } from 'react'
 import { motion } from 'framer-motion'
 import { Briefcase, Plus, Trash2, Users, Search } from 'lucide-react'
 import AnimatedSection from '../ui/AnimatedSection'
@@ -7,23 +7,25 @@ import SkillInput from '../ui/SkillInput'
 import EmptyState from '../ui/EmptyState'
 import StatCard from '../ui/StatCard'
 import Badge from '../ui/Badge'
-import type { Job, Candidate } from '../../types'
+import type { Job, Candidate, CandidateStatus } from '../../types'
 import { jobTypes } from '../../data/content'
 
 interface Props {
   jobs: Job[]
   setJobs: (j: Job[]) => void
   candidates: Candidate[]
+  setCandidates: (c: Candidate[]) => void
   addToast: (msg: string, type?: 'success' | 'error' | 'info' | 'warning') => void
 }
 
 const EMPTY = { title: '', company: '', skills: '', exp: '', type: 'Full-time' as Job['type'] }
 
-export default function HRPage({ jobs, setJobs, candidates, addToast }: Props) {
+export default function HRPage({ jobs, setJobs, candidates, setCandidates, addToast }: Props) {
   const [form, setForm]       = useState(EMPTY)
   const [showForm, setShowForm] = useState(false)
-  const [tab, setTab]         = useState<'jobs' | 'candidates'>('jobs')
+  const [tab, setTab]         = useState<'jobs' | 'candidates' | 'pipeline'>('jobs')
   const [search, setSearch]   = useState('')
+  const [dragOverStage, setDragOverStage] = useState<CandidateStatus | null>(null)
 
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault()
@@ -52,6 +54,48 @@ export default function HRPage({ jobs, setJobs, candidates, addToast }: Props) {
     c.name.toLowerCase().includes(search.toLowerCase()) ||
     c.email.toLowerCase().includes(search.toLowerCase())
   )
+
+  const stageOrder: CandidateStatus[] = ['Applied', 'Screening', 'Interview', 'Offer', 'Hired']
+  const stageColor = (status: CandidateStatus) => {
+    return status === 'Hired' ? 'emerald' : status === 'Offer' ? 'amber' : status === 'Interview' ? 'blue' : status === 'Screening' ? 'rose' : 'slate'
+  }
+
+  const moveCandidateStage = (id: string, status: CandidateStatus) => {
+    const candidate = candidates.find(c => c.id === id)
+    setCandidates(candidates.map(c => c.id === id ? { ...c, status } : c))
+    if (candidate && candidate.status !== status) {
+      addToast(`${candidate.name} moved to ${status}`, 'success')
+    }
+  }
+
+  const handleDragStart = (event: DragEvent<HTMLDivElement>, candidateId: string) => {
+    event.dataTransfer.setData('text/plain', candidateId)
+    event.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (event: DragEvent<HTMLDivElement>, stage: CandidateStatus) => {
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+    setDragOverStage(stage)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverStage(null)
+  }
+
+  const handleDrop = (event: DragEvent<HTMLDivElement>, stage: CandidateStatus) => {
+    event.preventDefault()
+    setDragOverStage(null)
+    const candidateId = event.dataTransfer.getData('text/plain')
+    if (candidateId) {
+      moveCandidateStage(candidateId, stage)
+    }
+  }
+
+  const groupedCandidates = stageOrder.reduce((acc, stage) => {
+    acc[stage] = candidates.filter(c => (c.status ?? 'Applied') === stage)
+    return acc
+  }, {} as Record<CandidateStatus, Candidate[]>)
 
   const typeColor = (t: string) => {
     const map: Record<string, 'emerald' | 'amber' | 'slate' | 'rose'> = {
@@ -82,6 +126,21 @@ export default function HRPage({ jobs, setJobs, candidates, addToast }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <StatCard label="Jobs Posted" value={jobs.length} icon={<Briefcase className="w-5 h-5" />} color="emerald" />
         <StatCard label="Candidates" value={candidates.length} icon={<Users className="w-5 h-5" />} color="blue" delay={0.1} />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4">
+        {stageOrder.map(stage => (
+          <div key={stage} className="card p-4 bg-slate-900/90 border-slate-700/70">
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <p className="text-xs uppercase tracking-[0.24em] text-slate-500">{stage}</p>
+              <Badge variant={stageColor(stage)} className="text-xs px-2 py-1">
+                {stage}
+              </Badge>
+            </div>
+            <p className="text-3xl font-semibold text-white">{groupedCandidates[stage]?.length ?? 0}</p>
+            <p className="text-xs text-slate-500 mt-2">Candidates currently in this stage</p>
+          </div>
+        ))}
       </div>
 
       {/* Post form */}
@@ -126,15 +185,15 @@ export default function HRPage({ jobs, setJobs, candidates, addToast }: Props) {
       {/* Tabs */}
       <AnimatedSection delay={0.1}>
         <div className="card p-0 overflow-hidden">
-          <div className="flex border-b border-slate-700/50">
-            {(['jobs', 'candidates'] as const).map(t => (
+          <div className="flex border-b border-slate-700/50 overflow-x-auto">
+            {(['jobs', 'candidates', 'pipeline'] as const).map(t => (
               <button key={t} onClick={() => { setTab(t); setSearch('') }}
-                className={`flex-1 py-3 text-sm font-medium capitalize transition-colors ${
+                className={`flex-1 py-3 text-sm font-medium capitalize transition-colors whitespace-nowrap ${
                   tab === t
                     ? 'text-emerald-400 border-b-2 border-emerald-500 bg-emerald-500/5'
                     : 'text-slate-400 hover:text-white'
                 }`}>
-                {t === 'jobs' ? `Jobs (${jobs.length})` : `Candidates (${candidates.length})`}
+                {t === 'jobs' ? `Jobs (${jobs.length})` : t === 'candidates' ? `Candidates (${candidates.length})` : 'Pipeline'}
               </button>
             ))}
           </div>
@@ -176,7 +235,7 @@ export default function HRPage({ jobs, setJobs, candidates, addToast }: Props) {
                 ))}
               </div>
             )
-          ) : (
+          ) : tab === 'candidates' ? (
             filteredCandidates.length === 0 ? (
               <EmptyState icon={<Users className="w-7 h-7" />} title="No candidates yet"
                 description="Candidates registered in the Candidates page will appear here." />
@@ -196,10 +255,98 @@ export default function HRPage({ jobs, setJobs, candidates, addToast }: Props) {
                         <span key={s} className="badge-slate">{s.trim()}</span>
                       ))}
                     </div>
+                    <Badge variant={stageColor(c.status ?? 'Applied')} className="text-xs px-3 py-1.5">
+                      {c.status ?? 'Applied'}
+                    </Badge>
                   </div>
                 ))}
               </div>
             )
+          ) : (
+            <div className="space-y-6">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                  <h2 className="text-lg font-semibold text-white">Pipeline Board</h2>
+                  <p className="text-sm text-slate-400">Move candidates through screening, interview, offer, and hire stages.</p>
+                </div>
+              </div>
+
+              <div className="overflow-x-auto pb-4">
+                <div className="min-w-[1200px] grid grid-cols-1 md:grid-cols-5 gap-4">
+                  {stageOrder.map(stage => (
+                    <div key={stage}
+                      onDragOver={event => handleDragOver(event, stage)}
+                      onDragLeave={handleDragLeave}
+                      onDrop={event => handleDrop(event, stage)}
+                      className={`rounded-[28px] border p-4 shadow-[0_24px_80px_-60px_rgba(15,23,42,0.8)] transition-all ${
+                        dragOverStage === stage
+                          ? 'border-emerald-400/70 bg-emerald-500/10 ring-1 ring-emerald-500/20'
+                          : 'border-slate-700/60 bg-slate-900/90'
+                      }`}>
+                      <div className="flex items-center justify-between mb-4 gap-3">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.3em] text-slate-500">{stage}</p>
+                          <p className="text-2xl font-semibold text-white">{groupedCandidates[stage]?.length ?? 0}</p>
+                        </div>
+                        <Badge variant={stageColor(stage)} className="text-xs px-2 py-1">
+                          {stage}
+                        </Badge>
+                      </div>
+
+                      <div className="space-y-3">
+                        {(groupedCandidates[stage] ?? []).map(candidate => (
+                          <div key={candidate.id}
+                            draggable
+                            onDragStart={event => handleDragStart(event, candidate.id)}
+                            className="rounded-3xl border border-slate-700/50 bg-slate-950/80 p-4 space-y-3 shadow-[0_10px_30px_-18px_rgba(15,23,42,0.8)]">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="min-w-0">
+                                <p className="font-semibold text-white text-sm truncate">{candidate.name}</p>
+                                <p className="text-xs text-slate-400 truncate">{candidate.email}</p>
+                              </div>
+                              <span className="text-xs text-slate-400">{new Date(candidate.createdAt).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2 text-xs text-slate-400">
+                              <span>{candidate.experience || '0'} yrs exp</span>
+                              <span>·</span>
+                              <span>{candidate.education || 'N/A'}</span>
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {candidate.skills.split(',').slice(0, 3).map(skill => (
+                                <span key={skill} className="badge-slate text-xs">{skill.trim()}</span>
+                              ))}
+                              {candidate.skills.split(',').length > 3 && (
+                                <span className="text-xs text-slate-500">+{candidate.skills.split(',').length - 3}</span>
+                              )}
+                            </div>
+                            <div className="flex flex-wrap gap-2">
+                              {stage !== 'Applied' && (
+                                <button type="button" onClick={() => moveCandidateStage(candidate.id, stageOrder[stageOrder.indexOf(stage) - 1])}
+                                  className="rounded-full border border-slate-700 px-3 py-1.5 text-xs text-slate-300 hover:bg-slate-800">
+                                  Move back
+                                </button>
+                              )}
+                              {stage !== 'Hired' && (
+                                <button type="button" onClick={() => moveCandidateStage(candidate.id, stageOrder[stageOrder.indexOf(stage) + 1])}
+                                  className="rounded-full bg-emerald-500/15 text-emerald-300 px-3 py-1.5 text-xs hover:bg-emerald-500/25">
+                                  Advance
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+
+                        {!(groupedCandidates[stage]?.length) && (
+                          <div className="rounded-3xl border border-dashed border-slate-700/40 bg-slate-950/70 p-4 text-xs text-slate-500">
+                            No candidates in {stage.toLowerCase()} yet.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </AnimatedSection>

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-type Variant = 'emerald' | 'slate' | 'amber' | 'rose'
+type Variant = 'emerald' | 'slate' | 'amber' | 'rose' | 'blue'
 
 interface Props {
   children: ReactNode
@@ -13,6 +13,7 @@ const variants: Record<Variant, string> = {
   slate:   'badge-slate',
   amber:   'badge-amber',
   rose:    'badge-rose',
+  blue:    'badge-blue',
 }
 
 export default function Badge({ children, variant = 'slate', className = '' }: Props) {

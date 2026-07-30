@@ -29,6 +29,12 @@ export default function DashboardPage({ candidates, jobs }: Props) {
     const typeFreq: Record<string, number> = {}
     jobs.forEach(j => { typeFreq[j.type] = (typeFreq[j.type] ?? 0) + 1 })
 
+    const statusFreq: Record<string, number> = {}
+    candidates.forEach(c => {
+      const status = (c.status ?? 'Applied')
+      statusFreq[status] = (statusFreq[status] ?? 0) + 1
+    })
+
     const expBuckets = [
       { label: '0–1 yr',  count: candidates.filter(c => parseFloat(c.experience || '0') < 1).length },
       { label: '1–3 yrs', count: candidates.filter(c => { const e = parseFloat(c.experience || '0'); return e >= 1 && e < 3 }).length },
@@ -36,7 +42,7 @@ export default function DashboardPage({ candidates, jobs }: Props) {
       { label: '5+ yrs',  count: candidates.filter(c => parseFloat(c.experience || '0') >= 5).length },
     ]
 
-    return { topSkills, typeFreq, expBuckets }
+    return { topSkills, typeFreq, statusFreq, expBuckets }
   }, [candidates, jobs])
 
   useEffect(() => {
@@ -124,12 +130,21 @@ export default function DashboardPage({ candidates, jobs }: Props) {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <StatCard label="Candidates" value={candidates.length} icon={<Users className="w-5 h-5" />} color="emerald" delay={0} />
         <StatCard label="Jobs" value={jobs.length} icon={<Briefcase className="w-5 h-5" />} color="blue" delay={0.1} />
-        <StatCard label="Unique Skills" value={new Set(candidates.flatMap(c => c.skills.split(',').map(s => s.trim().toLowerCase()).filter(Boolean))).size}
+        <StatCard label="In Pipeline" value={candidates.filter(c => (c.status ?? 'Applied') !== 'Applied').length}
           icon={<TrendingUp className="w-5 h-5" />} color="amber" delay={0.2} />
         <StatCard label="Avg Experience" value={candidates.length
           ? `${(candidates.reduce((s, c) => s + parseFloat(c.experience || '0'), 0) / candidates.length).toFixed(1)} yrs`
           : '—'} icon={<TrendingUp className="w-5 h-5" />} color="emerald" delay={0.3} />
       </div>
+
+      <AnimatedSection delay={0.05} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        {(['Applied', 'Screening', 'Interview', 'Offer', 'Hired'] as const).map(status => (
+          <div key={status} className="card p-4">
+            <p className="text-xs uppercase text-slate-500 mb-3">{status}</p>
+            <p className="text-3xl font-semibold text-white">{stats.statusFreq[status] ?? 0}</p>
+          </div>
+        ))}
+      </AnimatedSection>
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
