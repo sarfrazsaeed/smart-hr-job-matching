@@ -1,4 +1,4 @@
-import { createTextStreamResponse, streamText, toTextStream } from 'ai'
+import { streamText } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 
 export const maxDuration = 30
@@ -24,14 +24,22 @@ export default async function handler(req: Request) {
       model: anthropic('claude-sonnet-4-5'),
       system: systemPrompt,
       messages,
+      onError({ error }) {
+        console.error('[chat] model error:', error)
+      },
     })
 
-    return createTextStreamResponse({
-      stream: toTextStream({ stream: result.stream }),
-      headers: {
-        'Content-Type': 'text/plain; charset=utf-8',
-        'Cache-Control': 'no-store',
-      },
+    const text = await result.text
+
+    if (!text.trim()) {
+      return new Response('The assistant returned no text. Check the Vercel function logs.', {
+        status: 500,
+        headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
+      })
+    }
+
+    return new Response(text, {
+      headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Cache-Control': 'no-store' },
     })
   } catch (err) {
     console.error('[chat] setup error:', err)
