@@ -1,9 +1,14 @@
-import { convertToModelMessages, streamText } from 'ai'
+import { streamText } from 'ai'
 import { anthropic } from '@ai-sdk/anthropic'
 
 export const maxDuration = 30
 
-type BodyObject = { messages?: Array<{ role: string; content: string }> }
+type BodyObject = { messages?: unknown }
+
+type ChatMessage = {
+  role?: string
+  content?: string
+}
 
 type NodeRequestLike = {
   method?: string
@@ -37,6 +42,20 @@ async function readBody(req: NodeRequestLike | Request): Promise<BodyObject> {
   })
 }
 
+function normalizeMessages(messages: unknown) {
+  if (!Array.isArray(messages)) return []
+
+  return messages
+    .map((message) => {
+      const item = message as ChatMessage
+      const content = typeof item.content === 'string' ? item.content.trim() : ''
+      const role = item.role === 'assistant' || item.role === 'system' ? item.role : 'user'
+
+      return content ? { role, content } : null
+    })
+    .filter((message): message is { role: 'user' | 'assistant' | 'system'; content: string } => message !== null)
+}
+
 function sendText(res: NodeResponseLike | undefined, status: number, text: string) {
   if (res && typeof res.status === 'function') {
     res.status(status).setHeader('Content-Type', 'text/plain; charset=utf-8')
@@ -54,7 +73,7 @@ export default async function handler(req: NodeRequestLike | Request, res?: Node
   if ((req?.method ?? 'POST') !== 'POST') return sendText(res, 405, 'Method Not Allowed')
 
   const body = await readBody(req)
-  const messages = body.messages ?? []
+  const messages = normalizeMessages(body.messages)
 
   const systemPrompt = `You are a friendly HR qualification assistant. Ask the candidate about their skills, experience, role interests and availability in a warm, conversational manner. Clarify ambiguous answers and ask follow-up questions as needed.`
 
@@ -64,12 +83,11 @@ export default async function handler(req: NodeRequestLike | Request, res?: Node
 
   try {
     console.log('[chat] Calling Claude with', messages.length, 'messages')
-    const modelMessages = await convertToModelMessages(messages)
 
     const result = streamText({
       model: anthropic('claude-sonnet-4-5'),
       system: systemPrompt,
-      messages: modelMessages,
+      messages,
       onError({ error }) {
         console.error('[chat] model error:', error)
       },
